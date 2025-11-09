@@ -57,7 +57,7 @@ target_include_directories(asura
         ${VENDOR_INCLUDE_DIR}
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/src
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/engine
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/asura
         ${CMAKE_CURRENT_SOURCE_DIR}/shaders
 )
 
