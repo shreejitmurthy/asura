@@ -15,7 +15,7 @@
     #include "sokol/util/sokol_debugtext.h"
     #define SOKOL_GL_IMPL
     #include "sokol/util/sokol_gl.h"
-    // #define FONTSTASH_IMPLEMENTATION
+    #define FONTSTASH_IMPLEMENTATION
     #if defined(_MSC_VER )
         #pragma warning(disable:4996)   // strncpy use in fontstash.h
     #endif
@@ -28,6 +28,6 @@
     #if defined(__GNUC__) || defined(__clang__)
         #pragma GCC diagnostic pop
     #endif
-    // #define SOKOL_FONTSTASH_IMPL
-    // #include "sokol/util/sokol_fontstash.h"
+    #define SOKOL_FONTSTASH_IMPL
+    #include "sokol/util/sokol_fontstash.h"
 #endif

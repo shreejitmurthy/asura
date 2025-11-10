@@ -9,8 +9,8 @@
 #define SOKOL_NO_ENTRY
 #define SOKOL_TRACE_HOOKS
 
-// #define FONTSTASH_IMPLEMENTATION
-// #include "fontstash.h"
+#define FONTSTASH_IMPLEMENTATION
+#include "fontstash.h"
 
 #include "sokol/sokol_app.h"
 #include "sokol/sokol_gfx.h"
@@ -22,5 +22,5 @@
 #include "sokol/util/sokol_debugtext.h"
 #define SOKOL_GL_IMPL
 #include "sokol/util/sokol_gl.h"
-// #define SOKOL_FONTSTASH_IMPL
-// #include "sokol/util/sokol_fontstash.h"
+#define SOKOL_FONTSTASH_IMPL
+#include "sokol/util/sokol_fontstash.h"
