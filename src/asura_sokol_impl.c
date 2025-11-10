@@ -10,7 +10,7 @@
 #define SOKOL_TRACE_HOOKS
 
 #define FONTSTASH_IMPLEMENTATION
-#include "fontstash.h"
+#include "fontstash/src/fontstash.h"
 
 #include "sokol/sokol_app.h"
 #include "sokol/sokol_gfx.h"

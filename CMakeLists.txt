@@ -56,11 +56,11 @@ target_include_directories(asura
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/include
         ${VENDOR_INCLUDE_DIR}
+        ${VENDOR_INCLUDE_DIR}fontstash/src
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/src
         ${CMAKE_CURRENT_SOURCE_DIR}/include/asura
         ${CMAKE_CURRENT_SOURCE_DIR}/shaders
-        ${VENDOR_INCLUDE_DIR}/fontstash/src
 )
 
 target_link_libraries(asura

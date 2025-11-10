@@ -24,7 +24,7 @@
         #pragma GCC diagnostic ignored "-Wunused-function"
         #pragma GCC diagnostic ignored "-Wsign-conversion"
     #endif
-    // #include "fontstash.h"
+     #include "fontstash/src/fontstash.h"
     #if defined(__GNUC__) || defined(__clang__)
         #pragma GCC diagnostic pop
     #endif
