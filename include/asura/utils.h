@@ -72,3 +72,12 @@ inline void write_json_file(const std::string& path, const nlohmann::json& j) {
     if (!f) die("Failed to open json for write");
     f << j.dump(4);
 }
+
+inline unsigned char* read_file(const char* filename, size_t& size) {
+    std::ifstream f(filename, std::ios::binary | std::ios::ate);
+    size = f.tellg();
+    auto* data = new unsigned char[size];
+    f.seekg(0);
+    f.read(reinterpret_cast<char*>(data), size);
+    return data;
+}
