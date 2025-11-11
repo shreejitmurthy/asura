@@ -65,7 +65,7 @@ namespace asura {
 // Sprite
 class SpriteRenderer {
 public:
-    void init(const std::string& images_dir, std::vector<ResourceDef> def1);
+    void init(const std::string& images_dir, std::vector<ResourceDef> reg);
 
     template <typename E>
         requires std::is_enum_v<E>

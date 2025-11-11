@@ -56,8 +56,8 @@ inline std::string compute_names_hash(const std::vector<Sprite>& sprites) {
     return std::to_string(h);
 }
 
-void asura::SpriteRenderer::init(const std::string &images_dir, std::vector<ResourceDef> def1) {
-    kSpriteDefs = def1;
+void asura::SpriteRenderer::init(const std::string &images_dir, std::vector<ResourceDef> reg) {
+    kSpriteDefs = reg;
     _init_images(images_dir.c_str());
     _init_ir(atlas.path);
 }
@@ -221,7 +221,7 @@ void asura::SpriteRenderer::_init_images(const char *dir) {
 
         int w = 0, h = 0, n = 0;
         unsigned char* img = stbi_load(join_path_png(dir, kSpriteDefs[i].name).c_str(), &w, &h, &n, 4);
-        if (!img) die("stbi load failed");
+        if (!img) die(std::format("Failed to load image at: {}", join_path_png(dir, kSpriteDefs[i].name)));
         Sprite tex = {};
         tex.width = w; tex.height = h; tex.channels = 4; tex.data = img;
         tex.name = kSpriteDefs[i].name;
