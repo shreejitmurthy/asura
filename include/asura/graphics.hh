@@ -12,6 +12,7 @@
 
 #include "debug.hh"
 #include "sprite.hh"
+#include "font.hh"
 
 #define FONT_KC854 (0)
 #define FONT_ORIC  (1)
