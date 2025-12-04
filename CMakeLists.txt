@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.29)
-project(asura LANGUAGES C CXX OBJCXX)
+project(asura LANGUAGES C CXX)
 
 option(ASURA_BUILD_SHARED "Build asura as a shared library" OFF)
 option(ASURA_PROVIDE_SOKOL_IMPL "Compile a single SOKOL_IMPL TU inside asura" ON)
@@ -23,6 +23,7 @@ set(ASURA_SOURCES
 
 if(ASURA_PROVIDE_SOKOL_IMPL)
     if(APPLE)
+        enable_language(OBJCXX)
         set(ASURA_SOKOL_TU "src/asura_sokol_impl.mm")
         add_library(asura_sokol_impl OBJECT ${ASURA_SOKOL_TU})
         target_compile_definitions(asura_sokol_impl PRIVATE SOKOL_IMPL SOKOL_METAL)
