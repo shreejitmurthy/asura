@@ -251,7 +251,7 @@ void asura::SpriteRenderer::_init_ir(const std::string& path) {
     img_desc.width  = w;
     img_desc.height = h;
     img_desc.data.mip_levels[0].ptr = pixels;
-    img_desc.data.mip_levels[0].size = (size_t)w * h * 4;
+    img_desc.data.mip_levels[0].size = static_cast<size_t>(w * h * 4);
     sg_image image = sg_make_image(&img_desc);
 
     stbi_image_free(pixels);

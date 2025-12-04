@@ -16,11 +16,16 @@ void asura::init(int debug_scale) {
     sdtx_desc.logger.func = slog_func;
     sdtx_setup(&sdtx_desc);
 
-    sdtx_canvas((sapp_widthf() / sapp_dpi_scale()) * 1/debug_scale, (sapp_heightf() / sapp_dpi_scale()) * 1/debug_scale);
+    auto d = static_cast<float>(debug_scale);
+
+    const float cx = sapp_widthf() / sapp_dpi_scale() * 1/d;
+    const float cy = sapp_heightf() / sapp_dpi_scale() * 1/d;
+
+    sdtx_canvas(cx, cy);
     sdtx_origin(1.f, 1.f);
 }
 
-void asura::begin(sg_pass_action& pass_action) {
+void asura::begin(const sg_pass_action& pass_action) {
     sg_pass pass = {};
     pass.action = pass_action;
     pass.swapchain = sglue_swapchain();

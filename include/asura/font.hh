@@ -17,12 +17,12 @@ class FontRenderer {
 public:
     void init(const std::string& fonts_dir, std::vector<ResourceDef> reg = {});
 private:
-
     void _init_fonts(const char* dir);
 
     std::vector<ResourceDef> kFontDefs;
-
     std::vector<stbtt_bakedchar> char_data;
+    // std::vector<
+
 };
 
 } // asura
