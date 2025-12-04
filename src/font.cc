@@ -11,8 +11,6 @@
 
 #include "utils.h"
 
-#include "utils.h"
-
 void asura::FontRenderer::init(const std::string &fonts_dir, std::vector<ResourceDef> reg) {
     kFontDefs = reg;
     _init_fonts(fonts_dir.c_str());
