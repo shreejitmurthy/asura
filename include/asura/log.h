@@ -3,7 +3,7 @@
 
 #include <memory>
 
-namespace asura {
+namespace Asura {
 class Logger {
 public:
     static void init() {

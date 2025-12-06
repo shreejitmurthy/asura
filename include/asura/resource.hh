@@ -4,7 +4,7 @@
 
 #pragma once
 
-namespace asura {
+namespace Asura {
 typedef struct ResourceDef {
     const char* name;
     int id;

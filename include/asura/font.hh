@@ -14,7 +14,7 @@
 static constexpr int FIRST_CHAR = 32;
 static constexpr int NUM_CHARS  = 96;
 
-namespace asura {
+namespace Asura {
 
 class FontRenderer {
 public:
@@ -26,4 +26,4 @@ private:
     std::array<stbtt_bakedchar, NUM_CHARS> char_data;
 };
 
-} // asura
+} // Asura

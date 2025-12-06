@@ -3,8 +3,9 @@
 //
 
 #include "graphics.hh"
+#include "log.h"
 
-void asura::init(int debug_scale) {
+void Asura::init(int debug_scale) {
     sg_desc desc = {};
     desc.environment = sglue_environment();
     desc.logger.func = slog_func;
@@ -25,7 +26,11 @@ void asura::init(int debug_scale) {
     sdtx_origin(1.f, 1.f);
 }
 
-void asura::begin(const sg_pass_action& pass_action) {
+void Asura::init_logger() {
+    Logger::init();
+}
+
+void Asura::begin(const sg_pass_action& pass_action) {
     sg_pass pass = {};
     pass.action = pass_action;
     pass.swapchain = sglue_swapchain();
@@ -33,11 +38,11 @@ void asura::begin(const sg_pass_action& pass_action) {
     sg_begin_pass(&pass);
 }
 
-void asura::begin(sg_pass pass) {
+void Asura::begin(sg_pass pass) {
     sg_begin_pass(&pass);
 }
 
-void asura::end() {
+void Asura::end() {
     sdtx_draw();
     sg_end_pass();
     sg_commit();

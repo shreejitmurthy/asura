@@ -13,12 +13,12 @@
 
 #include "utils.h"
 
-void asura::FontRenderer::init(const std::string &fonts_dir, std::vector<ResourceDef> reg) {
+void Asura::FontRenderer::init(const std::string &fonts_dir, std::vector<ResourceDef> reg) {
     kFontDefs = std::move(reg);
     _init_fonts(fonts_dir.c_str());
 }
 
-void asura::FontRenderer::_init_fonts(const char* dir) {
+void Asura::FontRenderer::_init_fonts(const char* dir) {
     const int font_bitmap_w = 256;
     const int font_bitmap_h = 256;
 

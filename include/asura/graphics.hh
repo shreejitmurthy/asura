@@ -17,11 +17,10 @@
 #define FONT_KC854 (0)
 #define FONT_ORIC  (1)
 
-namespace asura {
-
+namespace Asura {
 void init(int debug_scale = 2);
+void init_logger();
 void begin(const sg_pass_action& pass_action);
 void begin(sg_pass pass);
 void end();
-
-} // namespace asura
+} // namespace Asura

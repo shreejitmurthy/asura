@@ -61,7 +61,7 @@ typedef struct InstancedRenderer {
     sg_pipeline pipeline;
 } InstancedRenderer;
 
-namespace asura {
+namespace Asura {
 
 // Sprite
 class SpriteRenderer {
@@ -154,5 +154,5 @@ private:
     void _draw_ir() const;
 };
 
-} // namespace asura
+} // namespace Asura
 

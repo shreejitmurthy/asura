@@ -56,19 +56,19 @@ inline std::string compute_names_hash(const std::vector<Sprite>& sprites) {
     return std::to_string(h);
 }
 
-void asura::SpriteRenderer::init(const std::string &images_dir, std::vector<ResourceDef> reg) {
+void Asura::SpriteRenderer::init(const std::string &images_dir, std::vector<ResourceDef> reg) {
     kSpriteDefs = reg;
     _init_images(images_dir.c_str());
     _init_ir(atlas.path);
 }
 
-void asura::SpriteRenderer::render(glm::mat4 projection, glm::mat4 view) {
+void Asura::SpriteRenderer::render(glm::mat4 projection, glm::mat4 view) {
     _update_ir(projection, view);
     _draw_ir();
     clear();  // this *may* cause issues in the future
 }
 
-void asura::SpriteRenderer::_pack(const PackDef& def) {
+void Asura::SpriteRenderer::_pack(const PackDef& def) {
     int sizeX = def.sizeX;
     int sizeY = def.sizeY;
     std::vector<stbrp_rect> rects = def.rects;
@@ -131,7 +131,7 @@ void asura::SpriteRenderer::_pack(const PackDef& def) {
     spdlog::info("Packaged images into: {}", atlas.path);
 }
 
-void asura::SpriteRenderer::_pack_images(const std::string &out_dir) {
+void Asura::SpriteRenderer::_pack_images(const std::string &out_dir) {
     int rect_count = 0;
     for (int id = 0; id < sprite_count; ++id) if (sprites[id].width > 0) ++rect_count;
     if (rect_count == 0) return;
@@ -206,7 +206,7 @@ void asura::SpriteRenderer::_pack_images(const std::string &out_dir) {
 }
 
 
-void asura::SpriteRenderer::_init_images(const char *dir) {
+void Asura::SpriteRenderer::_init_images(const char *dir) {
     sprite_count = 0;
     int highest_id = 0;
 
@@ -240,7 +240,7 @@ inline glm::vec2 get_tile_uv(glm::vec2 tile_index, glm::vec2 tile_size, glm::vec
     };
 }
 
-void asura::SpriteRenderer::_init_ir(const std::string& path) {
+void Asura::SpriteRenderer::_init_ir(const std::string& path) {
     ir.vs_params.mvp = get_default_projection();
 
     sg_shader shader = sg_make_shader(instance_shader_desc(sg_query_backend()));
@@ -312,21 +312,21 @@ void asura::SpriteRenderer::_init_ir(const std::string& path) {
     ir.instances.clear();
 }
 
-void asura::SpriteRenderer::_push_instance(int id, glm::vec2 position, glm::vec2 scale, float rotation, glm::vec2 pivot, glm::vec2 pivot_px, sg_color tint) {
+void Asura::SpriteRenderer::_push_instance(int id, glm::vec2 position, glm::vec2 scale, float rotation, glm::vec2 pivot, glm::vec2 pivot_px, sg_color tint) {
     if (ir.instances.size() < MAX_INSTANCES) {
         Sprite& tex = sprites[id];
         ir.instances.push_back(_create_instance_data({tex, position, scale, rotation, pivot, pivot_px, tint}));
     }
 }
 
-void asura::SpriteRenderer::_update_ir(glm::mat4 projection, glm::mat4 view) {
+void Asura::SpriteRenderer::_update_ir(glm::mat4 projection, glm::mat4 view) {
     sg_range range = { .ptr = ir.instances.data(), .size = ir.instances.size() * sizeof(InstanceData) };
     sg_update_buffer(ir.bindings.vertex_buffers[1], &range);
     ir.dirty = false;
     ir.vs_params.mvp = projection * view;
 }
 
-void asura::SpriteRenderer::_draw_ir() const {
+void Asura::SpriteRenderer::_draw_ir() const {
     if (ir.instances.size() == 0) return;
     sg_apply_pipeline(ir.pipeline);
     sg_apply_bindings(&ir.bindings);
