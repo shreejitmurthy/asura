@@ -11,12 +11,14 @@ Asura now fully relies on sokol, and cannot interop with any other windowing and
 ## Features
 ### Basic Debug Text Rendering
 ```cpp
+void draw() {
     Asura::begin(pass_action);
 
     Asura::debug("Hello, World!", {red, green, blue});
     Asura::debug(std::format("FPS: {}", std::round(1 / delta_time)));
 
     Asura::end();
+}
 ```
 ### "Registry" Based Asset Loading
 ```cpp
@@ -39,7 +41,7 @@ void init() {
 }
 ```
 ### GPU Instanced Sprite Renderer
-Arguments for the `push()` function are: `E id, vec2 position, vec2 scale = {1, 1}, float rotation = 0, sg_color tint = sg_white, vec2 pivot = {0, 0}, vec2 pivot_px = {0, 0}`
+Arguments for the `push()` function are: `E id, vec2 position, vec2 scale = {1, 1}, float rotation = 0, sg_color tint = sg_white, vec2 pivot = Asura::Pivot::TopLeft(), vec2 pivot_px = {0, 0}`
 ```cpp
 void draw() {
     Asura::begin(pass_action);
