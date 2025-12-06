@@ -104,3 +104,6 @@ if(ASURA_BUILD_SHARED)
         VISIBILITY_INLINES_HIDDEN ON
     )
 endif()
+
+# TEMP:
+target_compile_options(${PROJECT_NAME} PRIVATE -w)
