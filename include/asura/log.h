@@ -4,16 +4,12 @@
 #include <memory>
 
 namespace Asura {
-class Logger {
-public:
-    static void init() {
-        logger = spdlog::stdout_color_mt("logsura");
-        logger->set_pattern("[%Y-%m-%d | %H:%M:%S:%e] [%l] %v");
-        has_init = true;
-    }
-    static std::shared_ptr<spdlog::logger> log() { return logger; }
-private:
-    static std::shared_ptr<spdlog::logger> logger;
-    static bool has_init;
-};
+static spdlog::logger& log() {
+    static auto logger = []{
+        auto l = spdlog::stdout_color_mt("logsura");
+        l->set_pattern("[%Y-%m-%d | %T.%e] [%^%l%$] %v");
+        return l;
+    }();
+    return *logger;
+}
 }
