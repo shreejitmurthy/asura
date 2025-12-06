@@ -26,10 +26,6 @@ void Asura::init(int debug_scale) {
     sdtx_origin(1.f, 1.f);
 }
 
-void Asura::init_logger() {
-    Logger::init();
-}
-
 void Asura::begin(const sg_pass_action& pass_action) {
     sg_pass pass = {};
     pass.action = pass_action;

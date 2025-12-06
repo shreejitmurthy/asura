@@ -12,6 +12,7 @@
 #include "stb_image_write.h"
 
 #include "utils.h"
+#include "log.h"
 
 void Asura::FontRenderer::init(const std::string &fonts_dir, std::vector<ResourceDef> reg) {
     kFontDefs = std::move(reg);
@@ -42,9 +43,9 @@ void Asura::FontRenderer::_init_fonts(const char* dir) {
             if (ret == 0) die(std::format("Failed to load font at: {}", join_path_ttf(dir, kFontDefs[i].name)));
     
             stbi_write_png(filename.c_str(), font_bitmap_w, font_bitmap_h, 1, bitmap.data(), font_bitmap_w);
-            spdlog::info("Generated bitmap font: {}", filename);
+            log().info("Generated bitmap font: {}", filename);
         } else {
-            spdlog::info("Reused bitmap font: {}", filename);
+            log().info("Reused bitmap font: {}", filename);
         }
     }
 }

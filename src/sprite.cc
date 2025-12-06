@@ -15,6 +15,7 @@
 using namespace nlohmann;
 
 #include "utils.h"
+#include "log.h"
 
 #define offsetir(v) (int)offsetof(InstanceData, v)
 
@@ -128,7 +129,7 @@ void Asura::SpriteRenderer::_pack(const PackDef& def) {
     }
 
     write_json_file(join_path_json(out_dir, "atlas"), j);
-    spdlog::info("Packaged images into: {}", atlas.path);
+    log().info("Packaged images into: {}", atlas.path);
 }
 
 void Asura::SpriteRenderer::_pack_images(const std::string &out_dir) {
@@ -201,7 +202,7 @@ void Asura::SpriteRenderer::_pack_images(const std::string &out_dir) {
             auto& js = data["sprites"][s.name];
             s.x = js.value("x", 0);
         }
-        spdlog::info("Reused atlas from metadata: {}", atlas.path);
+        log().info("Reused atlas from metadata: {}", atlas.path);
     }
 }
 
@@ -226,7 +227,7 @@ void Asura::SpriteRenderer::_init_images(const char *dir) {
         tex.width = w; tex.height = h; tex.channels = 4; tex.data = img;
         tex.name = kSpriteDefs[i].name;
         sprites[id] = tex;
-        spdlog::info("Loaded image {} (enum id={})", kSpriteDefs[i].name, kSpriteDefs[i].id);
+        log().info("Loaded image {} (enum id={})", kSpriteDefs[i].name, kSpriteDefs[i].id);
     }
 
     sprite_count = highest_id + 1;
