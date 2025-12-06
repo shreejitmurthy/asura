@@ -269,9 +269,9 @@ void Asura::SpriteRenderer::_init_ir(const std::string& path) {
     ir.bindings.index_buffer = make_ibuf();
     sg_view_desc view_desc = {};
     view_desc.texture.image = image;
-    ir.bindings.views[VIEW_tex] = sg_make_view(&view_desc);
+    ir.bindings.views[VIEW_inst_tex] = sg_make_view(&view_desc);
 
-    ir.bindings.samplers[SMP_smp] = smp;
+    ir.bindings.samplers[SMP_inst_smp] = smp;
 
     sg_buffer_desc vbuf_desc = {};
     vbuf_desc.size = sizeof(InstanceData) * MAX_INSTANCES;

@@ -18,7 +18,7 @@
 
 #include <stb_rect_pack.h>
 
-#include "shaders/instance.glsl.h"
+#include "shaders/shader.glsl.h"
 
 #include "resource.hh"
 
