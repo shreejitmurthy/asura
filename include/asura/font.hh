@@ -11,6 +11,9 @@
 
 #include "stb_truetype.h"
 
+static constexpr int FIRST_CHAR = 32;
+static constexpr int NUM_CHARS  = 96;
+
 namespace asura {
 
 class FontRenderer {
@@ -20,9 +23,7 @@ private:
     void _init_fonts(const char* dir);
 
     std::vector<ResourceDef> kFontDefs;
-    std::vector<stbtt_bakedchar> char_data;
-    // std::vector<
-
+    std::array<stbtt_bakedchar, NUM_CHARS> char_data;
 };
 
 } // asura
