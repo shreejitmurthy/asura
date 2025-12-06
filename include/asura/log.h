@@ -4,10 +4,10 @@
 #include <memory>
 
 namespace Asura {
-static spdlog::logger& log() {
+inline spdlog::logger& log() {
     static auto logger = []{
         auto l = spdlog::stdout_color_mt("logsura");
-        l->set_pattern("[%Y-%m-%d | %T.%e] [%^%l%$] %v");
+        l->set_pattern("\033[2m[%Y-%m-%d | %T.%e]\033[0m [%^%l%$] %v");
         return l;
     }();
     return *logger;
