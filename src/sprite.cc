@@ -77,7 +77,7 @@ void asura::SpriteRenderer::_pack(const PackDef& def) {
     int awidth     = def.awidth;
     int aheight    = def.aheight;
 
-    atlas.width  = awidth >= 8192 ? 8192 : awidth;
+    atlas.width  = awidth  >= 8192 ? 8192 : awidth;
     atlas.height = aheight >= 8192 ? 8192 : aheight;
     
     stbrp_context ctx;

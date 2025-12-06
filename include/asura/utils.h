@@ -15,13 +15,13 @@
 #include <spdlog/spdlog.h>
 
 // Reference: https://graphics.stanford.edu/%7Eseander/bithacks.html#RoundUpPowerOf2
-static uint32_t round_pow2(float v) {
-    uint32_t vi = ((uint32_t) v) - 1;
-    if (vi == 0) return 1;  // clamp to 1
-    for (int shift = 1; shift < 32; shift <<= 1) vi |= vi >> shift;
-    vi++;
-    return vi;
-}
+// static uint32_t round_pow2(float v) {
+//     uint32_t vi = ((uint32_t) v) - 1;
+//     if (vi == 0) return 1;  // clamp to 1
+//     for (int shift = 1; shift < 32; shift <<= 1) vi |= vi >> shift;
+//     vi++;
+//     return vi;
+// }
 
 // Should only be used when developing, remove all instances in code for release.
 inline static void die(const std::string& msg) {
@@ -80,4 +80,10 @@ inline unsigned char* read_file(const char* filename, size_t& size) {
     f.seekg(0);
     f.read(reinterpret_cast<char*>(data), size);
     return data;
+}
+
+// Casting
+template <typename E>
+inline constexpr std::uint8_t rccast(E e) {
+    return static_cast<int>(e);
 }
