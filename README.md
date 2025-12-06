@@ -30,6 +30,7 @@ enum class SpriteID : uint8_t {
 };
 
 static const std::vector<Asura::ResourceDef> spriteRegistry = {
+    // string names must match the filename: player.png, enemy.png, ...
     { "player", (int)SpriteID::Player },
     { "enemy",  (int)SpriteID::Enemy },
 };
