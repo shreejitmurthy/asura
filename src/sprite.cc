@@ -101,7 +101,7 @@ void Asura::SpriteRenderer::_pack(const PackDef& def) {
     j["true_height"] = sizeY;
     j["rect_count"]  = rect_count;
     j["names_hash"]  = compute_names_hash(sprites);
-    j["sprites"]        = ordered_json::object();
+    j["sprites"]     = ordered_json::object();
 
     // blit each rect and fill json
     for (int i = 0; i < rect_count; ++i) {
