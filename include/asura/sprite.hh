@@ -62,6 +62,15 @@ typedef struct InstancedRenderer {
 } InstancedRenderer;
 
 namespace Asura {
+class Pivot {
+public:
+    /*
+        Note: These are not typical NDC. Since Asura flips images on load, the following are vertical opposites
+        of the true normalized device coordinates (ie, NDC bottom left => Asura top left).
+    */
+    static glm::vec2 Centre()  { return {0.5, 0.5}; }
+    static glm::vec2 TopLeft() { return {0.0, 0.0}; }
+};
 
 // Sprite
 class SpriteRenderer {
@@ -70,7 +79,7 @@ public:
 
     template <typename E>
         requires std::is_enum_v<E>
-    void push(E id, glm::vec2 position, glm::vec2 scale = {1, 1}, float rotation = 0, sg_color tint = sg_white, glm::vec2 pivot = {0, 0}, glm::vec2 pivot_px = {0, 0}) {
+    void push(E id, glm::vec2 position, glm::vec2 scale = {1, 1}, float rotation = 0, sg_color tint = sg_white, glm::vec2 pivot = Pivot::TopLeft, glm::vec2 pivot_px = {0, 0}) {
         _push_instance(std::to_underlying(id), position, scale, rotation, pivot, pivot_px, tint);
     }
 
