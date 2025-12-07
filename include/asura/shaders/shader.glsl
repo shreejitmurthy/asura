@@ -55,6 +55,11 @@ void main() {
 @program instance vs_inst fs_inst
 
 @vs vs_text
+
+layout(binding = 0) uniform text_params {
+    mat4 mvp;
+};
+
 in vec2 position;
 in vec2 texcoord0;
 in vec4 color0;
@@ -63,7 +68,7 @@ out vec2 uv;
 out vec4 color;
 
 void main() {
-    gl_Position = vec4(position, 0.0, 1.0);  // if pass already in clip space?
+    gl_Position = mvp * vec4(position, 0.0, 1.0);  // if pass already in clip space?
     uv = texcoord0;
     color = color0;
 }
