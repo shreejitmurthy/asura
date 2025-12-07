@@ -15,7 +15,6 @@
     #include "sokol/util/sokol_debugtext.h"
     #define SOKOL_GL_IMPL
     #include "sokol/util/sokol_gl.h"
-    #define FONTSTASH_IMPLEMENTATION
     #if defined(_MSC_VER )
         #pragma warning(disable:4996)   // strncpy use in fontstash.h
     #endif
@@ -24,10 +23,7 @@
         #pragma GCC diagnostic ignored "-Wunused-function"
         #pragma GCC diagnostic ignored "-Wsign-conversion"
     #endif
-     #include "fontstash/src/fontstash.h"
     #if defined(__GNUC__) || defined(__clang__)
         #pragma GCC diagnostic pop
     #endif
-    #define SOKOL_FONTSTASH_IMPL
-    #include "sokol/util/sokol_fontstash.h"
 #endif
