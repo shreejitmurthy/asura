@@ -79,7 +79,7 @@ public:
 
     template <typename E>
         requires std::is_enum_v<E>
-    void push(E id, glm::vec2 position, glm::vec2 scale = {1, 1}, float rotation = 0, sg_color tint = sg_white, glm::vec2 pivot = Pivot::TopLeft, glm::vec2 pivot_px = {0, 0}) {
+    void push(E id, glm::vec2 position, glm::vec2 scale = {1, 1}, float rotation = 0, sg_color tint = sg_white, glm::vec2 pivot = Pivot::TopLeft(), glm::vec2 pivot_px = {0, 0}) {
         _push_instance(std::to_underlying(id), position, scale, rotation, pivot, pivot_px, tint);
     }
 
