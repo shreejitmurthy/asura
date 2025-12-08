@@ -11,6 +11,23 @@ void Asura::init(int debug_scale) {
     desc.logger.func = slog_func;
     sg_setup(&desc);
 
+    std::string backend;
+    switch (sg_query_backend()) {
+        case SG_BACKEND_METAL_MACOS:
+        case SG_BACKEND_METAL_IOS:
+        case SG_BACKEND_METAL_SIMULATOR:
+            backend = "Metal";
+            break;
+        case SG_BACKEND_D3D11:
+            backend = "D3D11";
+            break;
+        case SG_BACKEND_GLCORE:
+            backend = "OpenGL";
+            break;
+    }
+
+    log().info("Backend: {}", backend);
+
     sdtx_desc_t sdtx_desc = {};
     sdtx_desc.fonts[FONT_KC854] = sdtx_font_kc854();
     sdtx_desc.fonts[FONT_ORIC] = sdtx_font_oric();
