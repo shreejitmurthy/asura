@@ -75,16 +75,16 @@ void main() {
 @end
 
 @fs fs_text
-layout(binding = 1) uniform texture2D font_tex;
-layout(binding = 1) uniform sampler font_smp;
-#define font_texture sampler2D(font_tex, font_smp)
+layout(binding = 1) uniform texture2D text_tex;
+layout(binding = 1) uniform sampler text_smp;
+#define text_texture sampler2D(text_tex, text_smp)
 
 in vec2 uv;
 in vec4 color;
 out vec4 frag_color;
 
 void main() {
-    float alpha = texture(font_texture, uv).r;  // single-channel atlas mayhaps
+    float alpha = texture(text_texture, uv).r;  // single-channel atlas mayhaps
     frag_color = vec4(color.rgb, color.a * alpha);
 }
 @end
