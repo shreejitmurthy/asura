@@ -66,7 +66,7 @@ void Asura::SpriteRenderer::init(const std::string &images_dir, std::vector<Reso
 void Asura::SpriteRenderer::render(glm::mat4 projection, glm::mat4 view) {
     _update_ir(projection, view);
     _draw_ir();
-    clear();  // this *may* cause issues in the future
+    _clear();  // this *may* cause issues in the future
 }
 
 void Asura::SpriteRenderer::_pack(const PackDef& def) {

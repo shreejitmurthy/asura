@@ -85,8 +85,9 @@ public:
 
     void render(glm::mat4 projection = get_default_projection(), glm::mat4 view = glm::mat4(1.f));
 
-    void clear() { ir.instances.clear(); }
 private:
+    void _clear() { ir.instances.clear(); }
+    
     std::vector<ResourceDef> kSpriteDefs;
     std::vector<Sprite> sprites;
     InstancedRenderer ir;
