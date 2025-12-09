@@ -41,7 +41,7 @@ public:
     void init(const std::string& fonts_dir, std::vector<ResourceDef> reg = {});
      template <typename E>
         requires std::is_enum_v<E>
-    void queue(E id, std::string_view text, glm::vec2 pos, float scale = 1.0f, sg_color tint = sg_white) {
+    void queue(E id, std::string_view text, glm::vec2 pos, float scale = 1.f, sg_color tint = sg_white) {
         _queue_text(std::to_underlying(id), text, pos, scale, tint);
     }
 
