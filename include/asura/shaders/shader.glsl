@@ -85,7 +85,8 @@ out vec4 frag_color;
 
 void main() {
     float alpha = texture(text_texture, uv).r;  // single-channel atlas mayhaps
-    frag_color = vec4(color.rgb, color.a * alpha);
+    // frag_color = vec4(color.rgb, color.a * alpha);
+    frag_color = color;
 }
 @end
 
