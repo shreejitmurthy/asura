@@ -16,7 +16,10 @@
 
 #include "shaders/shader.glsl.h"
 
+#define offsetfr(v) (int)offsetof(Vertex, v)
+
 void Asura::FontRenderer::init(const std::string &fonts_dir, std::vector<ResourceDef> reg) {
+    id_to_font_index.fill(-1);
     kFontDefs = std::move(reg);
     _init_fonts(fonts_dir.c_str());
     _init_fr();
@@ -27,43 +30,74 @@ void Asura::FontRenderer::render(glm::mat4 projection, glm::mat4 view) {
 
     glm::mat4 mvp = projection * view;
 
-    // TODO: Rest
+    text_params_t vs_params;
+    vs_params.mvp = mvp;
+
+    for (auto& f : fonts) {
+        auto& verts = f.batch.verts;
+        auto& indices = f.batch.indices;
+
+        if (verts.empty() || indices.empty()) continue;
+
+        sg_update_buffer(vbuf, SG_RANGE(verts));
+        // sg_update_buffer(ibuf, SG_RANGE(indices));
+
+        sg_bindings bind = {};
+        bind.vertex_buffers[0] = vbuf;
+        bind.index_buffer = ibuf;
+        bind.views[VIEW_font_tex] = f.view;
+        bind.samplers[SMP_font_smp] = smp;
+
+        sg_apply_bindings(&bind);
+        sg_apply_uniforms(UB_text_params, SG_RANGE(vs_params));
+        sg_draw(0, static_cast<int>(indices.size()), 1);
+    }
+
+    _clear();  /* potential issues in the future */
 }
 
-void Asura::FontRenderer::_init_fonts(const char *dir)
-{
+void Asura::FontRenderer::_clear() {
+    for (auto& f : fonts) {
+        f.batch.verts.clear();
+        f.batch.indices.clear();
+    }
+}
+
+void Asura::FontRenderer::_init_fonts(const char *dir) {
     const int font_bitmap_w = 256;
     const int font_bitmap_h = 256;
-
-    std::vector<unsigned char> bitmap(font_bitmap_w * font_bitmap_h);
 
     fonts.clear();
     fonts.reserve(kFontDefs.size());
 
     for (auto& def : kFontDefs) {
         Font font = {};
-        font.id = def.id;
+        font.id   = def.id;
         font.name = def.name;
         font.size = def.size;
 
         auto png = join_path_png(dir, def.name);
         auto ttf = join_path_ttf(dir, def.name);
+
+        std::vector<unsigned char> bitmap(font_bitmap_w * font_bitmap_h);
+
+        std::size_t ttf_size;
+        auto ttf_data = read_file(ttf.c_str(), ttf_size);
+
+        int ret = stbtt_BakeFontBitmap(
+            ttf_data,
+            0,
+            static_cast<float>(def.size) - 1,
+            bitmap.data(),
+            font_bitmap_w,
+            font_bitmap_h,
+            FIRST_CHAR,
+            NUM_CHARS,
+            font.chars.data()
+        );
+        if (ret == 0) die(std::format("Failed to load font at: {}", ttf));
+
         if (!std::filesystem::exists(png)) {
-            std::size_t ttf_size;
-            auto ttf_data = read_file(ttf.c_str(), ttf_size);
-            auto ret = stbtt_BakeFontBitmap(
-                ttf_data,
-                0,
-                static_cast<float>(def.size) - 1,
-                bitmap.data(),
-                font_bitmap_w,
-                font_bitmap_h,
-                FIRST_CHAR,
-                NUM_CHARS,
-                char_data.data()
-            );
-            if (ret == 0) die(std::format("Failed to load font at: {}", ttf));
-    
             stbi_write_png(png.c_str(), font_bitmap_w, font_bitmap_h, 1, bitmap.data(), font_bitmap_w);
             log().info("Generated bitmap font: {}", png);
         } else {
@@ -79,6 +113,10 @@ void Asura::FontRenderer::_init_fonts(const char *dir)
         img.data.mip_levels[0].size = bitmap.size();
         font.atlas = sg_make_image(&img);
 
+        sg_view_desc vd = {};
+        vd.texture.image = font.atlas;
+        font.view = sg_make_view(&vd);
+
         int idx = (int)fonts.size();
         fonts.push_back(std::move(font));
 
@@ -89,11 +127,10 @@ void Asura::FontRenderer::_init_fonts(const char *dir)
 }
 
 void Asura::FontRenderer::_init_fr() {
-    id_to_font_index.fill(-1);
-    
     sg_buffer_desc vb = {};
     vb.size = MAX_GLYPHS * 4 * sizeof(Vertex);
     vb.usage.stream_update = true;
+    vb.usage.vertex_buffer = true;
     vbuf = sg_make_buffer(&vb);
 
     std::vector<uint16_t> tmp;
@@ -121,12 +158,26 @@ void Asura::FontRenderer::_init_fr() {
     sg_shader shd = sg_make_shader(text_shader_desc(sg_query_backend()));
 
     sg_pipeline_desc pip_desc = {};
+    pip_desc.layout.buffers[0].stride = sizeof(Vertex);
+    
     pip_desc.layout.attrs[ATTR_text_position].format = SG_VERTEXFORMAT_FLOAT2;
+    pip_desc.layout.attrs[ATTR_text_position].offset = offsetfr(x);
+
     pip_desc.layout.attrs[ATTR_text_texcoord0].format = SG_VERTEXFORMAT_FLOAT2;
+    pip_desc.layout.attrs[ATTR_text_texcoord0].offset = offsetfr(u);
+
     pip_desc.layout.attrs[ATTR_text_color0].format = SG_VERTEXFORMAT_FLOAT4;
-    pip_desc.colors[0].blend.enabled = true;
-    pip_desc.colors[0].blend.src_factor_rgb = SG_BLENDFACTOR_SRC_ALPHA;
-    pip_desc.colors[0].blend.dst_factor_rgb = SG_BLENDFACTOR_ONE_MINUS_SRC_ALPHA;
+    pip_desc.layout.attrs[ATTR_text_color0].offset = offsetfr(color);
+
+    pip_desc.colors[0].blend.enabled          = true;
+    pip_desc.colors[0].blend.src_factor_rgb   = SG_BLENDFACTOR_SRC_ALPHA;
+    pip_desc.colors[0].blend.dst_factor_rgb   = SG_BLENDFACTOR_ONE_MINUS_SRC_ALPHA;
+    pip_desc.colors[0].blend.op_rgb           = SG_BLENDOP_ADD;
+    pip_desc.colors[0].blend.src_factor_alpha = SG_BLENDFACTOR_ONE;
+    pip_desc.colors[0].blend.dst_factor_alpha = SG_BLENDFACTOR_ONE_MINUS_SRC_ALPHA;
+    pip_desc.colors[0].blend.op_alpha         = SG_BLENDOP_ADD;
+    
+    pip_desc.index_type = SG_INDEXTYPE_UINT16;
     pip_desc.shader = shd;
 
     pip = sg_make_pipeline(&pip_desc);
@@ -185,16 +236,3 @@ Asura::FontRenderer::Font* Asura::FontRenderer::_find_font(int id) {
     if (idx < 0 || idx >= (int)fonts.size()) return nullptr;
     return &fonts[idx];
 }
-
-// static uint32_t pack_color(sg_color c) {
-//     uint8_t r = (uint8_t)(c.r * 255.0f);
-//     uint8_t g = (uint8_t)(c.g * 255.0f);
-//     uint8_t b = (uint8_t)(c.b * 255.0f);
-//     uint8_t a = (uint8_t)(c.a * 255.0f);
-//     return (uint32_t(r)      ) |
-//            (uint32_t(g) <<  8) |
-//            (uint32_t(b) << 16) |
-//            (uint32_t(a) << 24);
-// }
-
-

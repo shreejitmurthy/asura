@@ -12,6 +12,7 @@
 
 #include <sokol/sokol_gfx.h>
 #include <sokol/sokol_app.h>
+#include <sokol/util/sokol_color.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -41,11 +42,13 @@ public:
      template <typename E>
         requires std::is_enum_v<E>
     void queue(E id, std::string_view text, glm::vec2 pos, sg_color tint = sg_white, float scale = 1.0f) {
-        _push_text(std::to_underlying(id), text, pos, tint, scale);
+        _queue_text(std::to_underlying(id), text, pos, tint, scale);
     }
 
     void render(glm::mat4 projection = get_default_projectionf(), glm::mat4 view = glm::mat4(1.f));
+
 private:
+    void _clear();
     void _init_fonts(const char* dir);
     void _init_fr();
 
@@ -64,6 +67,7 @@ private:
         int size;
 
         sg_image atlas;   // font texture
+        sg_view view;
         std::array<stbtt_bakedchar, NUM_CHARS> chars;
 
         // per-frame batch for this font
