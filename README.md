@@ -23,6 +23,7 @@ void draw() {
 ### "Registry" Based Asset Loading
 ```cpp
 Asura::SpriteRenderer sr;
+Asura::FontRenderer fr;
 
 enum class SpriteID : uint8_t {
     Player = 1,
@@ -35,14 +36,25 @@ static const std::vector<Asura::ResourceDef> spriteRegistry = {
     { "enemy",  (int)SpriteID::Enemy },
 };
 
+enum class FontID : uint8_t {
+    Alagard = 1,
+};
+
+static const std::vector<Asura::ResourceDef> fontRegistry = {
+    // string name, ID, font size
+    {"alagard", rccast(FontID::Alagard), 16}
+};
+
 void init() {
     Asura::init();
 
     sr.init("../res/images/", spriteRegistry);
+    
+    fr.init("../res/fonts/", fontRegistry);
 }
 ```
 ### GPU Instanced Sprite Renderer
-Arguments for the `push()` function are: `E id, vec2 position, vec2 scale = {1, 1}, float rotation = 0, sg_color tint = sg_white, vec2 pivot = Asura::Pivot::TopLeft(), vec2 pivot_px = {0, 0}`
+Arguments for the `push()` function are: `E id, vec2 position, vec2 scale = {1, 1}, float rotation = 0.f, sg_color tint = sg_white, vec2 pivot = Asura::Pivot::TopLeft(), vec2 pivot_px = {0, 0}`
 ```cpp
 void draw() {
     Asura::begin(pass_action);
@@ -55,3 +67,20 @@ void draw() {
     Asura::end();
 }
 ```
+### Bitmap Font Rendering
+Arguments for the `queue()` function are: `E id, std::string_view text, glm::vec2 pos, float scale = 1.f, sg_color tint = sg_white`
+```cpp
+void draw() {
+    Asura::begin(pass_action);
+
+    fr.queue(FontID::Alagard, "very epic code", {250, 250}, 2);
+
+    fr.render();
+
+    Asura::end();
+}
+```
+### Informative Logging
+<p align="center">
+    <img src="scs/logging.png" width = 600>
+</p>
