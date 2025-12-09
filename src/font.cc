@@ -18,6 +18,8 @@
 
 #define offsetfr(v) (int)offsetof(Vertex, v)
 
+#define SG_VECTOR_RANGE(v) sg_range{ (v).data(), (v).size() * sizeof((v)[0]) }
+
 void Asura::FontRenderer::init(const std::string &fonts_dir, std::vector<ResourceDef> reg) {
     id_to_font_index.fill(-1);
     kFontDefs = std::move(reg);
@@ -38,15 +40,16 @@ void Asura::FontRenderer::render(glm::mat4 projection, glm::mat4 view) {
         auto& indices = f.batch.indices;
 
         if (verts.empty() || indices.empty()) continue;
+        
+        sg_update_buffer(vbuf, SG_VECTOR_RANGE(verts));
 
-        sg_update_buffer(vbuf, SG_RANGE(verts));
         // sg_update_buffer(ibuf, SG_RANGE(indices));
 
         sg_bindings bind = {};
         bind.vertex_buffers[0] = vbuf;
         bind.index_buffer = ibuf;
-        bind.views[VIEW_font_tex] = f.view;
-        bind.samplers[SMP_font_smp] = smp;
+        bind.views[VIEW_text_tex] = f.view;
+        bind.samplers[SMP_text_smp] = smp;
 
         sg_apply_bindings(&bind);
         sg_apply_uniforms(UB_text_params, SG_RANGE(vs_params));
@@ -147,7 +150,8 @@ void Asura::FontRenderer::_init_fr() {
 
     sg_buffer_desc ib = {};
     ib.usage.index_buffer = true;
-    ib.data = SG_RANGE(tmp);
+    ib.data.ptr = tmp.data();
+    ib.data.size = tmp.size() * sizeof(uint16_t);
     ibuf = sg_make_buffer(&ib);
 
     sg_sampler_desc sd = {};
@@ -183,7 +187,7 @@ void Asura::FontRenderer::_init_fr() {
     pip = sg_make_pipeline(&pip_desc);
 }
 
-void Asura::FontRenderer::_queue_text(int id, std::string_view text, glm::vec2 pos, sg_color tint, float scale) {
+void Asura::FontRenderer::_queue_text(int id, std::string_view text, glm::vec2 pos, float scale, sg_color tint) {
     Font* font = _find_font(id);
     if (!font || text.empty()) return;
     
