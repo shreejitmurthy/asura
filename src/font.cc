@@ -43,8 +43,6 @@ void Asura::FontRenderer::render(glm::mat4 projection, glm::mat4 view) {
         
         sg_update_buffer(vbuf, SG_VECTOR_RANGE(verts));
 
-        // sg_update_buffer(ibuf, SG_RANGE(indices));
-
         sg_bindings bind = {};
         bind.vertex_buffers[0] = vbuf;
         bind.index_buffer = ibuf;
@@ -56,7 +54,7 @@ void Asura::FontRenderer::render(glm::mat4 projection, glm::mat4 view) {
         sg_draw(0, static_cast<int>(indices.size()), 1);
     }
 
-    _clear();  /* potential issues in the future */
+    _clear();
 }
 
 void Asura::FontRenderer::_clear() {
@@ -67,9 +65,6 @@ void Asura::FontRenderer::_clear() {
 }
 
 void Asura::FontRenderer::_init_fonts(const char *dir) {
-    const int font_bitmap_w = 256;
-    const int font_bitmap_h = 256;
-
     fonts.clear();
     fonts.reserve(kFontDefs.size());
 
@@ -92,10 +87,8 @@ void Asura::FontRenderer::_init_fonts(const char *dir) {
             0,
             static_cast<float>(def.size) - 1,
             bitmap.data(),
-            font_bitmap_w,
-            font_bitmap_h,
-            FIRST_CHAR,
-            NUM_CHARS,
+            font_bitmap_w, font_bitmap_h,
+            FIRST_CHAR, NUM_CHARS,
             font.chars.data()
         );
         if (ret == 0) die(std::format("Failed to load font at: {}", ttf));

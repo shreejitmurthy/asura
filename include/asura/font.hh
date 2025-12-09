@@ -48,6 +48,9 @@ public:
     void render(glm::mat4 projection = get_default_projectionf(), glm::mat4 view = glm::mat4(1.f));
 
 private:
+    const int font_bitmap_w = 256;
+    const int font_bitmap_h = 256;
+    
     void _clear();
     void _init_fonts(const char* dir);
     void _init_fr();
@@ -66,18 +69,17 @@ private:
         std::string name;
         int size;
 
-        sg_image atlas;   // font texture
+        sg_image atlas;  // font texture
         sg_view view;
         std::array<stbtt_bakedchar, NUM_CHARS> chars;
 
-        // per-frame batch for this font
+        // per frame batch for this font
         struct {
             std::vector<Vertex> verts;
             std::vector<uint16_t> indices;
         } batch;
     };
 
-    // std::unique_ptr<Font> _find_font(int id);
     Font* _find_font(int id);
 
     // remove
