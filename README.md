@@ -1,16 +1,15 @@
 # Asura Engine
 
-<table border="0" cellspacing="0" cellpadding="0">
+<table>
   <tr>
-    <td width="140">
-      <img src="imgs/team_sigma.png" alt="Team Sigma" width="120">
+    <td>
+      <img src="imgs/team_sigma.png" alt="Team Sigma" width="240">
     </td>
-    <td width="100%" align="center">
+    <td>
       <strong>A Team Sigma Project</strong>
     </td>
   </tr>
 </table>
-
 
 
 Asura is a C++ engine/framework for game development. It’s currently being used in two WIP projects, and I plan to open-source them once completed.
