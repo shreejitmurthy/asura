@@ -6,7 +6,7 @@
       <img src="imgs/team_sigma.png" alt="Team Sigma" width="240">
     </td>
     <td>
-      <strong>A Team Sigma Project</strong>
+      A <strong>Team Sigma</strong> Project
     </td>
   </tr>
 </table>
