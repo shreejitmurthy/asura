@@ -1,6 +1,13 @@
 # Asura Engine
 
-Asura is a C++ engine/framework for game development. It’s currently being used in two WIP projects, and I plan to open-source it once completed.
+<div style="display: flex; align-items: center;">
+  <img src="imgs/team_sigma.png" alt="Team Sigma Logo" width="150" style="margin-right: 16px;">
+  <p>
+    A Team Sigma Project
+  </p>
+</div>
+
+Asura is a C++ engine/framework for game development. It’s currently being used in two WIP projects, and I plan to open-source them once completed.
 
 Asura does not handle windowing and context creation. Instead, it leans on [sokol](https://github.com/floooh/sokol) for cross-platform graphics (Metal on macOS, D3D11 on Windows, and OpenGL on Linux), making it effectively just a renderer.
 
@@ -82,5 +89,5 @@ void draw() {
 ```
 ### Informative Logging
 <p align="center">
-    <img src="scs/logging.png" width = 600>
+    <img src="imgs/logging.png" width=600>
 </p>
