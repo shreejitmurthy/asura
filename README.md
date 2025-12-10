@@ -3,7 +3,7 @@
 <table>
   <tr>
     <td>
-      <img src="imgs/team_sigma.png" alt="Team Sigma" width="120">
+      <img src="imgs/team_sigma.png" alt="Team Sigma" width="240">
     </td>
     <td>
       <strong>A Team Sigma Project</strong>
