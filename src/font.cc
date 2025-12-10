@@ -68,6 +68,8 @@ void Asura::FontRenderer::_init_fonts(const char *dir) {
     fonts.clear();
     fonts.reserve(kFontDefs.size());
 
+    int generated_fonts = 0;
+
     for (auto& def : kFontDefs) {
         Font font = {};
         font.id   = def.id;
@@ -95,9 +97,9 @@ void Asura::FontRenderer::_init_fonts(const char *dir) {
 
         if (!std::filesystem::exists(png)) {
             stbi_write_png(png.c_str(), font_bitmap_w, font_bitmap_h, 1, bitmap.data(), font_bitmap_w);
-            log().info("Generated bitmap font: {}", png);
+            log().info("Generated bitmap font \033[1m{}\033[0m (enum id={})", def.name, def.id);
         } else {
-            log().info("Reused bitmap font: {}", png);
+            log().info("Reused bitmap font \033[1m{}\033[0m (enum id={})", def.name, def.id);
         }
 
         sg_image_desc img = {};
