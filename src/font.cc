@@ -7,9 +7,11 @@
 #include "font.hh"
 
 #define STB_TRUETYPE_IMPLEMENTATION
-#include "stb_truetype.h"
+#include <stb_truetype.h>
+#include <stb_image_write.h>
 
-#include "stb_image_write.h"
+#include <nlohmann/json.hpp>
+using namespace nlohmann;
 
 #include "utils.h"
 #include "log.h"
@@ -19,6 +21,43 @@
 #define offsetfr(v) (int)offsetof(Vertex, v)
 
 #define SG_VECTOR_RANGE(v) sg_range{ (v).data(), (v).size() * sizeof((v)[0]) }
+
+std::tuple<float, float> estimateGlyphCellSize(unsigned char* ttf, float pixel_h, int first_cdepnt, int num_cdepnt) {
+    stbtt_fontinfo font;
+    stbtt_InitFont(&font, ttf, stbtt_GetFontOffsetForIndex(ttf, 0));
+
+    float scale = stbtt_ScaleForPixelHeight(&font, pixel_h);
+
+    float max_w = 0;
+    float max_h = 0;
+
+    for (int i = 0; i < num_cdepnt; ++i) {
+        int point = first_cdepnt * i;
+
+        int x0, y0, x1, y1;
+        stbtt_GetCodepointBitmapBox(&font, point, scale, scale, &x0, &y0, &x1, &y1);
+
+        float w = static_cast<float>(x1 - x0);
+        float h = static_cast<float>(y1 - y0);
+
+        if (w > max_w) max_w = w;
+        if (h > max_h) max_h = h;
+    }
+
+    float padding = 0.f;
+    return {max_w + 2.f + padding, max_h + 2.f * padding};
+}
+
+std::tuple<int, int> estimateAtlasSize(float gw, float gh, int N) {
+    double cols_f = std::sqrt((double)N * (double)gh / (double)gw);
+    int cols = (int)std::ceil(cols_f);
+    int rows = (int)std::ceil((double)N / (double)cols);
+
+    int w = static_cast<int>(cols * gw);
+    int h = static_cast<int>(rows * gh);
+
+    return {w, h};
+}
 
 void Asura::FontRenderer::init(const std::string &fonts_dir, std::vector<ResourceDef> reg) {
     id_to_font_index.fill(-1);
@@ -68,43 +107,54 @@ void Asura::FontRenderer::_init_fonts(const char *dir) {
     fonts.clear();
     fonts.reserve(kFontDefs.size());
 
-    int generated_fonts = 0;
+    // These should be loaded from metadata (as well as name and size).
+    int w, h;
+    std::vector<unsigned char> bitmap;
 
-    for (auto& def : kFontDefs) {
+    for (auto& [name, id, size] : kFontDefs) {
         Font font = {};
-        font.id   = def.id;
-        font.name = def.name;
-        font.size = def.size;
+        font.id   = id;
+        font.name = name;
+        font.size = size;
 
-        auto png = join_path_png(dir, def.name);
-        auto ttf = join_path_ttf(dir, def.name);
-
-        std::vector<unsigned char> bitmap(font_bitmap_w * font_bitmap_h);
+        auto png  = join_path_png(dir, font.name);
+        auto ttf  = join_path_ttf(dir, font.name);
+        auto json = join_path_json(dir, font.name);
 
         std::size_t ttf_size;
+        // Time-consuming function, look to load metadata if done prior.
         auto ttf_data = read_file(ttf.c_str(), ttf_size);
+
+        auto [gw, gh] = estimateGlyphCellSize(ttf_data, static_cast<float>(font.size), FIRST_CHAR, NUM_CHARS);
+        auto [atlas_w, atlas_h] = estimateAtlasSize(gw, gh, NUM_CHARS);
+
+        w = std::bit_ceil(static_cast<uint32_t>(atlas_w));
+        h = std::bit_ceil(static_cast<uint32_t>(atlas_h));
+
+        bitmap.resize(w * h);
 
         int ret = stbtt_BakeFontBitmap(
             ttf_data,
             0,
-            static_cast<float>(def.size) - 1,
+            static_cast<float>(size),
             bitmap.data(),
-            font_bitmap_w, font_bitmap_h,
-            FIRST_CHAR, NUM_CHARS,
+            w, h,
+            FIRST_CHAR, 94,
             font.chars.data()
         );
-        if (ret == 0) die(std::format("Failed to load font at: {}", ttf));
+        if (ret == 0) die("Failed to load font at: " + ttf);
 
         if (!std::filesystem::exists(png)) {
-            stbi_write_png(png.c_str(), font_bitmap_w, font_bitmap_h, 1, bitmap.data(), font_bitmap_w);
-            log().info("Generated bitmap font \033[1m{}\033[0m (enum id={})", def.name, def.id);
+            stbi_write_png(png.c_str(), w, h, 1, bitmap.data(), font_bitmap_w);
+            log().info("Generated bitmap font \033[1m{}\033[0m (enum id={})", name, id);
         } else {
-            log().info("Reused bitmap font \033[1m{}\033[0m (enum id={})", def.name, def.id);
+            log().info("Reused bitmap font \033[1m{}\033[0m (enum id={})", name, id);
         }
 
+        /* The above is essential data that needs to be fethced. Generate JSON metadata if reusing fnts to cut ~10ms off loading time */
         sg_image_desc img = {};
-        img.width  = font_bitmap_w;
-        img.height = font_bitmap_h;
+        img.width  = w;
+        img.height = h;
         img.pixel_format = SG_PIXELFORMAT_R8;
         img.usage.immutable = true;
         img.data.mip_levels[0].ptr  = bitmap.data();
@@ -118,8 +168,8 @@ void Asura::FontRenderer::_init_fonts(const char *dir) {
         int idx = (int)fonts.size();
         fonts.push_back(std::move(font));
 
-        if (def.id >= 0 && def.id < (int)id_to_font_index.size()) {
-            id_to_font_index[def.id] = idx;
+        if (id >= 0 && id < (int)id_to_font_index.size()) {
+            id_to_font_index[id] = idx;
         }
     }
 }
@@ -182,6 +232,13 @@ void Asura::FontRenderer::_init_fr() {
     pip = sg_make_pipeline(&pip_desc);
 }
 
+Asura::FontRenderer::Font* Asura::FontRenderer::_find_font(int id) {
+    if (id < 0 || id >= static_cast<int>(id_to_font_index.size())) return nullptr;
+    int idx = id_to_font_index[id];
+    if (idx < 0 || idx >= static_cast<int>(fonts.size())) return nullptr;
+    return &fonts[idx];
+}
+
 void Asura::FontRenderer::_queue_text(int id, std::string_view text, glm::vec2 pos, float scale, sg_color tint) {
     Font* font = _find_font(id);
     if (!font || text.empty()) return;
@@ -206,7 +263,7 @@ void Asura::FontRenderer::_queue_text(int id, std::string_view text, glm::vec2 p
 
         stbtt_aligned_quad q;
         // TODO: clarify magic numbers
-        stbtt_GetBakedQuad(font->chars.data(), 256, 256, ci, &x, &y, &q, true);
+        stbtt_GetBakedQuad(font->chars.data(), font_bitmap_w, font_bitmap_h, ci, &x, &y, &q, true);
 
         float x0 = pos.x + (q.x0 - pos.x) * scale;
         float y0 = pos.y + (q.y0 - pos.y) * scale;
@@ -227,11 +284,4 @@ void Asura::FontRenderer::_queue_text(int id, std::string_view text, glm::vec2 p
         indices.push_back(base + 2);
         indices.push_back(base + 3);
     }
-}
-
-Asura::FontRenderer::Font* Asura::FontRenderer::_find_font(int id) {
-    if (id < 0 || id >= (int)id_to_font_index.size()) return nullptr;
-    int idx = id_to_font_index[id];
-    if (idx < 0 || idx >= (int)fonts.size()) return nullptr;
-    return &fonts[idx];
 }
