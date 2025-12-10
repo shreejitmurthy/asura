@@ -42,7 +42,7 @@ enum class FontID : uint8_t {
 
 static const std::vector<Asura::ResourceDef> fontRegistry = {
     // string name, ID, font size
-    {"alagard", rccast(FontID::Alagard), 16}
+    {"alagard", (int)FontID::Alagard, 16}
 };
 
 void init() {
