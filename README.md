@@ -18,8 +18,6 @@ Asura does not handle windowing and context creation. Instead, it leans on [soko
 
 This is similar to another one of my projects, [SmallGraphicsLayer](https://github.com/shreejitmurthy/SmallGraphicsLayer). SGL is on indefinite pause (commits are scant), but it is a useful reference for Asura since it uses sokol and contains some design principles that reflect in Asura.
 
-Asura now fully relies on sokol, and cannot interop with any other windowing and context creation library (glfw, SDL, etc.). Right now the sokol windowing layer is used extremely minimally (by design). If I choose to create a game using anything other than `sokol_app`, then I will make the appropriate changes to support this.
-
 ## Features
 ### Basic Debug Text Rendering
 ```cpp
