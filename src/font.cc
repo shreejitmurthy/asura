@@ -32,7 +32,7 @@ std::tuple<float, float> estimateGlyphCellSize(unsigned char* ttf, float pixel_h
     float max_h = 0;
 
     for (int i = 0; i < num_cdepnt; ++i) {
-        int point = first_cdepnt * i;
+        int point = first_cdepnt + i;
 
         int x0, y0, x1, y1;
         stbtt_GetCodepointBitmapBox(&font, point, scale, scale, &x0, &y0, &x1, &y1);
@@ -49,15 +49,75 @@ std::tuple<float, float> estimateGlyphCellSize(unsigned char* ttf, float pixel_h
 }
 
 std::tuple<int, int> estimateAtlasSize(float gw, float gh, int N) {
-    double cols_f = std::sqrt((double)N * (double)gh / (double)gw);
-    int cols = (int)std::ceil(cols_f);
-    int rows = (int)std::ceil((double)N / (double)cols);
+    const double cols_f = std::sqrt(static_cast<double>(N) * static_cast<double>(gh) / static_cast<double>(gw));
+    const int cols = static_cast<int>(std::ceil(cols_f));
+    const int rows = static_cast<int>(std::ceil(static_cast<double>(N) / static_cast<double>(cols)));
 
-    int w = static_cast<int>(cols * gw);
-    int h = static_cast<int>(rows * gh);
+    int w = cols * static_cast<int>(gw);
+    int h = rows * static_cast<int>(gh);
 
     return {w, h};
 }
+
+inline void write_font_cache(const Asura::Font& font, const std::string& path) {
+    std::ofstream out(path, std::ios::binary);
+    if (!out) {
+        std::cerr << "Error opening font cache for writing: " << path << '\n';
+        return;
+    }
+
+    uint64_t bitmap_size = font.bitmap.size();
+    out.write(reinterpret_cast<const char*>(&bitmap_size), sizeof(bitmap_size));
+
+    if (bitmap_size > 0) {
+        out.write(reinterpret_cast<const char*>(font.bitmap.data()), static_cast<std::streamsize>(bitmap_size));
+    }
+
+    out.write(reinterpret_cast<const char*>(font.chars.data()), static_cast<std::streamsize>(NUM_CHARS * sizeof(stbtt_bakedchar)));
+}
+
+
+inline bool read_font_cache(Asura::Font& font, const std::string& path, std::size_t expected_bitmap_size) {
+    std::ifstream in(path, std::ios::binary);
+    if (!in) {
+        std::cerr << "Error opening font cache for reading: " << path << '\n';
+        return false;
+    }
+
+    uint64_t bitmap_size = 0;
+    in.read(reinterpret_cast<char*>(&bitmap_size), sizeof(bitmap_size));
+    if (!in) {
+        Asura::log().error("Bad read on bitmap size for {} from: {}", font.name, path);
+        return false;
+    }
+
+    if (bitmap_size != expected_bitmap_size) {
+        Asura::log().error("Bitmap size mismatch in cache for font {} at: {} (expected {}, got {})", 
+            font.name, path, expected_bitmap_size, bitmap_size);
+        return false;  // fallback to regenerate
+    }
+
+    font.bitmap.resize(bitmap_size);
+    if (bitmap_size > 0) {
+        in.read(reinterpret_cast<char*>(font.bitmap.data()),
+                static_cast<std::streamsize>(bitmap_size));
+        if (!in) {
+            Asura::log().error("Bad read on bitmap for {} from: {}", font.name, path);
+            return false;
+        }
+    }
+
+    // read baked chars
+    in.read(reinterpret_cast<char*>(font.chars.data()),
+            static_cast<std::streamsize>(NUM_CHARS * sizeof(stbtt_bakedchar)));
+    if (!in) {
+        Asura::log().error("Bad read on baked chars for {} from: {}", font.name, path);
+        return false;
+    }
+
+    return true;
+}
+
 
 void Asura::FontRenderer::init(const std::string &fonts_dir, std::vector<ResourceDef> reg) {
     id_to_font_index.fill(-1);
@@ -107,9 +167,16 @@ void Asura::FontRenderer::_init_fonts(const char *dir) {
     fonts.clear();
     fonts.reserve(kFontDefs.size());
 
-    // These should be loaded from metadata (as well as name and size).
-    int w, h;
-    std::vector<unsigned char> bitmap;
+    ordered_json j;
+
+    j["first_char"] = FIRST_CHAR;
+    j["num_chars"]  = NUM_CHARS;
+    j["names_hash"] = std::to_string(compute_resource_hash(kFontDefs));
+    j["fonts"] = ordered_json::object();
+    
+    std::string json_path = join_path_json(dir, "fonts");
+
+    bool rewrite_json = false;
 
     for (auto& [name, id, size] : kFontDefs) {
         Font font = {};
@@ -117,48 +184,77 @@ void Asura::FontRenderer::_init_fonts(const char *dir) {
         font.name = name;
         font.size = size;
 
-        auto png  = join_path_png(dir, font.name);
-        auto ttf  = join_path_ttf(dir, font.name);
-        auto json = join_path_json(dir, font.name);
+        std::string png = join_path_png(dir, font.name);
+        std::string ttf = join_path_ttf(dir, font.name);
+        std::string bin = join_path_bin(dir, font.name);
+        
+        if (!std::filesystem::exists(png) || !std::filesystem::exists(json_path)) {
+            std::size_t ttf_size;
+            std::uint8_t* ttf_data = read_file(ttf.c_str(), ttf_size);
+            
+            auto [gw, gh] = estimateGlyphCellSize(ttf_data, static_cast<float>(font.size), FIRST_CHAR, NUM_CHARS);
+            auto [atlas_w, atlas_h] = estimateAtlasSize(gw, gh, NUM_CHARS);
 
-        std::size_t ttf_size;
-        // Time-consuming function, look to load metadata if done prior.
-        auto ttf_data = read_file(ttf.c_str(), ttf_size);
+            font.w = std::bit_ceil(static_cast<uint32_t>(atlas_w));
+            font.h = std::bit_ceil(static_cast<uint32_t>(atlas_h));
 
-        auto [gw, gh] = estimateGlyphCellSize(ttf_data, static_cast<float>(font.size), FIRST_CHAR, NUM_CHARS);
-        auto [atlas_w, atlas_h] = estimateAtlasSize(gw, gh, NUM_CHARS);
+            font.bitmap.resize(font.w * font.h);
 
-        w = std::bit_ceil(static_cast<uint32_t>(atlas_w));
-        h = std::bit_ceil(static_cast<uint32_t>(atlas_h));
+            int ret = stbtt_BakeFontBitmap(
+                ttf_data,
+                0,
+                static_cast<float>(size),
+                font.bitmap.data(),
+                font.w, font.h,
+                FIRST_CHAR, NUM_CHARS,
+                font.chars.data()
+            );
+            if (ret == 0) die("Failed to load font at: " + ttf);
 
-        bitmap.resize(w * h);
+            stbi_write_png(png.c_str(), font.w, font.h, 1, font.bitmap.data(), font.w);
+            
+            write_font_cache(font, bin);
 
-        int ret = stbtt_BakeFontBitmap(
-            ttf_data,
-            0,
-            static_cast<float>(size),
-            bitmap.data(),
-            w, h,
-            FIRST_CHAR, 94,
-            font.chars.data()
-        );
-        if (ret == 0) die("Failed to load font at: " + ttf);
+            j["fonts"][font.name] = {
+                {"bin", bin},
+                {"png", png},
+                {"w", font.w}, {"h", font.h},
+                {"size", font.bitmap.size()},
+                {"pixel_size", font.size}
+            };
 
-        if (!std::filesystem::exists(png)) {
-            stbi_write_png(png.c_str(), w, h, 1, bitmap.data(), font_bitmap_w);
             log().info("Generated bitmap font \033[1m{}\033[0m (enum id={})", name, id);
         } else {
-            log().info("Reused bitmap font \033[1m{}\033[0m (enum id={})", name, id);
+            json data;
+            if (read_json_file(json_path, data)) {
+                try {
+                    auto f = data["fonts"][font.name];
+                    std::size_t size = f["size"].get<std::size_t>();
+                    std::string bin_path = f["bin"];
+                    
+                    font.w = f.at("w").get<int>();
+                    font.h = f.at("h").get<int>();
+
+                    if (!read_font_cache(font, bin_path, size)) {
+                        // fallback: regenerate this font (bake again, overwrite bin/json)
+                        // for now log and skip
+                        log().info("Failed to read from {} font cache, bake font again.", font.name);
+                    }
+                } catch (const std::exception& e) {
+                    log().error("JSON error: {}", e.what());
+                }
+            }
+
+            log().info("Reused bitmap font \033[1m{}\033[0m from metadata (enum id={})", name, id);
         }
 
-        /* The above is essential data that needs to be fethced. Generate JSON metadata if reusing fnts to cut ~10ms off loading time */
         sg_image_desc img = {};
-        img.width  = w;
-        img.height = h;
+        img.width  = font.w;
+        img.height = font.h;
         img.pixel_format = SG_PIXELFORMAT_R8;
         img.usage.immutable = true;
-        img.data.mip_levels[0].ptr  = bitmap.data();
-        img.data.mip_levels[0].size = bitmap.size();
+        img.data.mip_levels[0].ptr  = font.bitmap.data();
+        img.data.mip_levels[0].size = font.bitmap.size();
         font.atlas = sg_make_image(&img);
 
         sg_view_desc vd = {};
@@ -171,7 +267,9 @@ void Asura::FontRenderer::_init_fonts(const char *dir) {
         if (id >= 0 && id < (int)id_to_font_index.size()) {
             id_to_font_index[id] = idx;
         }
-    }
+    } // for (auto& [name, id, size] : kFontDefs)
+
+    if (rewrite_json) write_json_file(json_path, j);
 }
 
 void Asura::FontRenderer::_init_fr() {
@@ -232,7 +330,7 @@ void Asura::FontRenderer::_init_fr() {
     pip = sg_make_pipeline(&pip_desc);
 }
 
-Asura::FontRenderer::Font* Asura::FontRenderer::_find_font(int id) {
+Asura::Font* Asura::FontRenderer::_find_font(int id) {
     if (id < 0 || id >= static_cast<int>(id_to_font_index.size())) return nullptr;
     int idx = id_to_font_index[id];
     if (idx < 0 || idx >= static_cast<int>(fonts.size())) return nullptr;
@@ -263,7 +361,7 @@ void Asura::FontRenderer::_queue_text(int id, std::string_view text, glm::vec2 p
 
         stbtt_aligned_quad q;
         // TODO: clarify magic numbers
-        stbtt_GetBakedQuad(font->chars.data(), font_bitmap_w, font_bitmap_h, ci, &x, &y, &q, true);
+        stbtt_GetBakedQuad(font->chars.data(), font->w, font->h, ci, &x, &y, &q, true);
 
         float x0 = pos.x + (q.x0 - pos.x) * scale;
         float y0 = pos.y + (q.y0 - pos.y) * scale;
