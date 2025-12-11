@@ -10,6 +10,7 @@
 #include <sokol/sokol_time.h>
 
 #include "debug.hh"
+#include "device.hh"
 #include "sprite.hh"
 #include "font.hh"
 
@@ -17,7 +18,7 @@
 #define FONT_ORIC  (1)
 
 namespace Asura {
-void init(int debug_scale = 2);
+void init(const Device& device);
 void begin(const sg_pass_action& pass_action);
 void begin(sg_pass pass);
 void end();
