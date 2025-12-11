@@ -50,6 +50,13 @@ inline std::string join_path_json(std::string_view dir, std::string_view name) {
     return path.string();
 }
 
+inline std::string join_path_bin(std::string_view dir, std::string_view name) {
+    std::filesystem::path path(dir);
+    path /= name;
+    path.replace_extension(".bin");
+    return path.string();
+}
+
 inline static char* dup_cstr(const char* s) {
     size_t n = strlen(s) + 1;
     char* p = (char*)malloc(n);
@@ -62,7 +69,7 @@ inline bool read_json_file(const std::string& path, nlohmann::json& out) {
     try {
         std::ifstream f(path);
         if (!f) return false;
-        f >> out;
+        out = nlohmann::json::parse(f);
         return true;
     } catch (...) { return false; }
 }
@@ -73,10 +80,10 @@ inline void write_json_file(const std::string& path, const nlohmann::json& j) {
     f << j.dump(4);
 }
 
-inline unsigned char* read_file(const char* filename, size_t& size) {
+inline std::uint8_t* read_file(const char* filename, size_t& size) {
     std::ifstream f(filename, std::ios::binary | std::ios::ate);
     size = f.tellg();
-    auto* data = new unsigned char[size];
+    auto* data = new std::uint8_t[size];
     f.seekg(0);
     f.read(reinterpret_cast<char*>(data), size);
     return data;
@@ -87,3 +94,16 @@ template <typename E>
 inline constexpr std::uint8_t rccast(E e) {
     return static_cast<int>(e);
 }
+
+inline void writeBinary(const std::vector<std::uint8_t>& data, const std::string& path) {
+    std::ofstream file(path, std::ios::out | std::ios::binary);
+    file.write(reinterpret_cast<const char*>(data.data()), static_cast<std::streamsize>(data.size()));
+}
+
+inline std::vector<std::uint8_t> readBinary(const std::string& path, std::size_t size) {
+    std::vector<std::uint8_t> data(size);
+    std::ifstream(path, std::ios::in | std::ios::binary)
+        .read(reinterpret_cast<char*>(data.data()), static_cast<std::streamsize>(data.size()));
+    return data;
+}
+

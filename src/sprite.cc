@@ -207,9 +207,11 @@ void Asura::SpriteRenderer::_init_images(const char *dir) {
         if (id < 0 || id >= (int)sprites.size()) continue;
         if (id > highest_id) highest_id = id;
 
+        auto png = join_path_png(dir, kSpriteDefs[i].name);
+
         int w = 0, h = 0, n = 0;
-        unsigned char* img = stbi_load(join_path_png(dir, kSpriteDefs[i].name).c_str(), &w, &h, &n, 4);
-        if (!img) die(std::format("Failed to load image at: {}", join_path_png(dir, kSpriteDefs[i].name)));
+        unsigned char* img = stbi_load(png.c_str(), &w, &h, &n, 4);
+        if (!img) die(std::format("Failed to load image at: {}", png));
         Sprite tex = {};
         tex.width = w; tex.height = h; tex.channels = 4; tex.data = img;
         tex.name = kSpriteDefs[i].name;
