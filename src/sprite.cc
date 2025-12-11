@@ -43,19 +43,6 @@ inline static sg_buffer make_ibuf() {
     return sg_make_buffer(&ibuf_desc);
 }
 
-inline std::string compute_names_hash(const std::vector<Sprite>& sprites) {
-    std::vector<std::string> names;
-    names.reserve(sprites.size());
-    for (auto const& s : sprites) if (s.width > 0) names.push_back(s.name);
-    std::sort(names.begin(), names.end());
-    // simple stable hash
-    std::size_t h = 1469598103934665603ull;
-    for (auto const& n : names) {
-        for (unsigned char c : n) { h ^= c; h *= 1099511628211ull; }
-        h ^= 0xff; h *= 1099511628211ull;
-    }
-    return std::to_string(h);
-}
 
 void Asura::SpriteRenderer::init(const std::string &images_dir, std::vector<ResourceDef> reg) {
     kSpriteDefs = reg;
@@ -100,7 +87,7 @@ void Asura::SpriteRenderer::_pack(const PackDef& def) {
     j["true_width"]  = sizeX;
     j["true_height"] = sizeY;
     j["rect_count"]  = rect_count;
-    j["names_hash"]  = compute_names_hash(sprites);
+    j["names_hash"]  = std::to_string(compute_resource_hash(kSpriteDefs));
     j["sprites"]     = ordered_json::object();
 
     // blit each rect and fill json
@@ -167,7 +154,7 @@ void Asura::SpriteRenderer::_pack_images(const std::string &out_dir) {
         const int  j_true_w      = data.value("true_width", -1);
         const int  j_true_h      = data.value("true_height", -1);
         const auto j_names_hash  = data.value("names_hash", std::string{});
-        const auto cur_hash      = compute_names_hash(sprites);
+        const auto cur_hash      = std::to_string(compute_resource_hash(kSpriteDefs));
 
         if (j_rect_count == rect_count &&
             j_true_w == sizeX &&
