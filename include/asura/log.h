@@ -12,4 +12,4 @@ inline spdlog::logger& log() {
     }();
     return *logger;
 }
-}
+} // Asura

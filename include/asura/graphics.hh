@@ -21,4 +21,4 @@ void init(int debug_scale = 2);
 void begin(const sg_pass_action& pass_action);
 void begin(sg_pass pass);
 void end();
-} // namespace Asura
+} // Asura

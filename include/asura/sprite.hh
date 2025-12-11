@@ -164,5 +164,5 @@ private:
     void _draw_ir() const;
 };
 
-} // namespace Asura
+} // Asura
 

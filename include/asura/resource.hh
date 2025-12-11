@@ -10,4 +10,4 @@ typedef struct ResourceDef {
     int id;
     int size;
 } ResourceDef;
-}
+} // Asura

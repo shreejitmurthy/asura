@@ -21,4 +21,4 @@ inline void debug(const std::string &text, sg_color colour = sg_white, int font 
     sdtx_printf("%s\n\n", text.c_str());
 }
 
-} // namespace Asura
+} // Asura
