@@ -163,59 +163,115 @@ void Asura::FontRenderer::_clear() {
     }
 }
 
-void Asura::FontRenderer::_init_fonts(const char *dir) {
+void Asura::FontRenderer::_init_fonts(const char* dir) {
     fonts.clear();
     fonts.reserve(kFontDefs.size());
+    id_to_font_index.fill(-1);
 
-    ordered_json j;
+    const std::string json_path = join_path_json(dir, "fonts");
+    const std::string expected_hash = std::to_string(compute_resource_hash(kFontDefs));
 
-    j["first_char"] = FIRST_CHAR;
-    j["num_chars"]  = NUM_CHARS;
-    j["names_hash"] = std::to_string(compute_resource_hash(kFontDefs));
-    j["fonts"] = ordered_json::object();
-    
-    std::string json_path = join_path_json(dir, "fonts");
-
+    ordered_json meta;
+    bool meta_valid = false;
     bool rewrite_json = false;
 
-    for (auto& [name, id, size] : kFontDefs) {
+    // --- 1. Try load existing JSON and validate header ---
+    if (std::filesystem::exists(json_path)) {
+        json disk;
+        if (read_json_file(json_path, disk)) {
+            try {
+                int first_char    = disk.at("first_char").get<int>();
+                int num_chars     = disk.at("num_chars").get<int>();
+                std::string hash  = disk.at("names_hash").get<std::string>();
+
+                if (first_char == FIRST_CHAR &&
+                    num_chars == NUM_CHARS &&
+                    hash == expected_hash &&
+                    disk.contains("fonts") &&
+                    disk["fonts"].is_object()) {
+
+                    meta = disk;
+                    meta_valid = true;
+                } else {
+                    log().info("Font metadata header changed, will rebuild fonts.json");
+                }
+            } catch (const std::exception& e) {
+                log().error("Error reading font metadata header: {}", e.what());
+            }
+        }
+    }
+
+    if (!meta_valid) {
+        meta["first_char"] = FIRST_CHAR;
+        meta["num_chars"]  = NUM_CHARS;
+        meta["names_hash"] = expected_hash;
+        meta["fonts"]      = ordered_json::object();
+        rewrite_json = true;  // will refill
+    }
+
+    for (auto& [name, id, pixel_size] : kFontDefs) {
         Font font = {};
         font.id   = id;
         font.name = name;
-        font.size = size;
+        font.size = pixel_size;
 
         std::string png = join_path_png(dir, font.name);
         std::string ttf = join_path_ttf(dir, font.name);
         std::string bin = join_path_bin(dir, font.name);
-        
-        if (!std::filesystem::exists(png) || !std::filesystem::exists(json_path)) {
-            std::size_t ttf_size;
+
+        bool have_meta = meta_valid && meta.contains("fonts") && meta["fonts"].contains(font.name);
+
+        bool have_files = std::filesystem::exists(png) && std::filesystem::exists(bin);
+
+        bool reused = false;
+
+        if (have_meta && have_files) {
+            try {
+                auto& f = meta["fonts"][font.name];
+                std::size_t bitmap_size = f.at("size").get<std::size_t>();
+                font.w = f.at("w").get<int>();
+                font.h = f.at("h").get<int>();
+                font.size = f.value("pixel_size", pixel_size);  // fallback
+
+                if (read_font_cache(font, bin, bitmap_size)) {
+                    reused = true;
+                    log().info("Reused bitmap font \033[1m{}\033[0m from cache (enum id={})", name, id);
+                } else {
+                    log().warn("Failed to read cache for font {}, will re-bake", name);
+                }
+            } catch (const std::exception& e) {
+                log().error("JSON error for font {}: {}", name, e.what());
+            }
+        }
+
+        if (!reused) {
+            std::size_t ttf_size = 0;
             std::uint8_t* ttf_data = read_file(ttf.c_str(), ttf_size);
-            
+
             auto [gw, gh] = estimateGlyphCellSize(ttf_data, static_cast<float>(font.size), FIRST_CHAR, NUM_CHARS);
             auto [atlas_w, atlas_h] = estimateAtlasSize(gw, gh, NUM_CHARS);
 
             font.w = std::bit_ceil(static_cast<uint32_t>(atlas_w));
             font.h = std::bit_ceil(static_cast<uint32_t>(atlas_h));
-
-            font.bitmap.resize(font.w * font.h);
+            font.bitmap.resize(static_cast<size_t>(font.w) * font.h);
 
             int ret = stbtt_BakeFontBitmap(
                 ttf_data,
                 0,
-                static_cast<float>(size),
+                static_cast<float>(font.size),
                 font.bitmap.data(),
                 font.w, font.h,
                 FIRST_CHAR, NUM_CHARS,
                 font.chars.data()
             );
-            if (ret == 0) die("Failed to load font at: " + ttf);
+            if (ret == 0) {
+                die("Failed to load font at: " + ttf);
+            }
 
             stbi_write_png(png.c_str(), font.w, font.h, 1, font.bitmap.data(), font.w);
-            
             write_font_cache(font, bin);
 
-            j["fonts"][font.name] = {
+            meta["fonts"][font.name] = {
                 {"bin", bin},
                 {"png", png},
                 {"w", font.w}, {"h", font.h},
@@ -223,31 +279,12 @@ void Asura::FontRenderer::_init_fonts(const char *dir) {
                 {"pixel_size", font.size}
             };
 
+            rewrite_json = true;
+
             log().info("Generated bitmap font \033[1m{}\033[0m (enum id={})", name, id);
-        } else {
-            json data;
-            if (read_json_file(json_path, data)) {
-                try {
-                    auto f = data["fonts"][font.name];
-                    std::size_t size = f["size"].get<std::size_t>();
-                    std::string bin_path = f["bin"];
-                    
-                    font.w = f.at("w").get<int>();
-                    font.h = f.at("h").get<int>();
-
-                    if (!read_font_cache(font, bin_path, size)) {
-                        // fallback: regenerate this font (bake again, overwrite bin/json)
-                        // for now log and skip
-                        log().info("Failed to read from {} font cache, bake font again.", font.name);
-                    }
-                } catch (const std::exception& e) {
-                    log().error("JSON error: {}", e.what());
-                }
-            }
-
-            log().info("Reused bitmap font \033[1m{}\033[0m from metadata (enum id={})", name, id);
         }
 
+        
         sg_image_desc img = {};
         img.width  = font.w;
         img.height = font.h;
@@ -267,10 +304,13 @@ void Asura::FontRenderer::_init_fonts(const char *dir) {
         if (id >= 0 && id < (int)id_to_font_index.size()) {
             id_to_font_index[id] = idx;
         }
-    } // for (auto& [name, id, size] : kFontDefs)
+    }
 
-    if (rewrite_json) write_json_file(json_path, j);
+    if (rewrite_json) {
+        write_json_file(json_path, meta);
+    }
 }
+
 
 void Asura::FontRenderer::_init_fr() {
     sg_buffer_desc vb = {};
