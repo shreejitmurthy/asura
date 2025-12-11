@@ -5,13 +5,13 @@
 #pragma once
 
 #include "resource.hh"
+#include "device.hh"
 
 #include <string>
 #include <vector>
 #include <memory>
 
 #include <sokol/sokol_gfx.h>
-#include <sokol/sokol_app.h>
 #include <sokol/util/sokol_color.h>
 
 #include <glm/glm.hpp>
@@ -20,7 +20,10 @@
 #include "stb_truetype.h"
 
 inline static glm::mat4 get_default_projectionf() {
-    return glm::ortho(0.f, sapp_widthf() / sapp_dpi_scale(), sapp_heightf() / sapp_dpi_scale(), 0.f, -1.f, 1.f);
+    int dpi_scale = Asura::Device::instance().high_dpi ? 2 : 1;
+    float w = static_cast<float>(Asura::Device::instance().width);
+    float h = static_cast<float>(Asura::Device::instance().height);
+    return glm::ortho(0.f, w / dpi_scale, h / dpi_scale, 0.f, -1.f, 1.f);
 }
 
 static constexpr int FIRST_CHAR = 32;  // start with ASCII code 33 exclamation mark.

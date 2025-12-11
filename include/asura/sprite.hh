@@ -12,7 +12,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <sokol/sokol_gfx.h>
-#include <sokol/sokol_app.h>
 
 #include <sokol/util/sokol_color.h>
 
@@ -21,11 +20,15 @@
 #include "shaders/shader.glsl.h"
 
 #include "resource.hh"
+#include "device.hh"
 
 #define MAX_INSTANCES (1024)
 
 inline static glm::mat4 get_default_projection() {
-    return glm::ortho(0.f, sapp_widthf() / sapp_dpi_scale(), sapp_heightf() / sapp_dpi_scale(), 0.f, -1.f, 1.f);
+    int dpi_scale = Asura::Device::instance().high_dpi ? 2 : 1;
+    float w = static_cast<float>(Asura::Device::instance().width);
+    float h = static_cast<float>(Asura::Device::instance().height);
+    return glm::ortho(0.f, w / dpi_scale, h / dpi_scale, 0.f, -1.f, 1.f);
 }
 
 typedef struct {
