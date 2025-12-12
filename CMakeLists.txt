@@ -81,6 +81,8 @@ if(APPLE)
     )
 elseif(WIN32)
     target_link_libraries(asura PUBLIC d3d11 dxgi)
+elseif(UNIX)
+    target_link_libraries(asura PUBLIC OpenGL::GL)  # this needs to be tested on a linux computer
 endif()
 
 if(ASURA_ENABLE_WARNINGS)
