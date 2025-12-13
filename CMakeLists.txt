@@ -56,14 +56,16 @@ endif()
 target_include_directories(asura
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${VENDOR_INCLUDE_DIR}
-        ${VENDOR_INCLUDE_DIR}fontstash/src
+        ${VENDOR_INCLUDE_DIR}  # temporarily visible
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/src
         ${CMAKE_CURRENT_SOURCE_DIR}/include/asura
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/asura/gfx
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/asura/core
         ${CMAKE_CURRENT_SOURCE_DIR}/shaders
 )
 
+# These are also the libraries used across the core/
 target_link_libraries(asura
     PUBLIC
         glm::glm
