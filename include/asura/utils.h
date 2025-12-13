@@ -89,6 +89,17 @@ inline std::uint8_t* read_file(const char* filename, size_t& size) {
     return data;
 }
 
+// Safer file reading
+inline std::vector<std::uint8_t> read_file_vec(const char* filename) {
+    std::ifstream f(filename, std::ios::binary | std::ios::ate);
+    std::streamsize size = f.tellg();
+    if (size <= 0) return {};
+    f.seekg(0, std::ios::beg);
+    std::vector<std::uint8_t> buf(static_cast<size_t>(size));
+    if (!f.read(reinterpret_cast<char*>(buf.data()), size)) return {};
+    return buf;
+}
+
 // Casting
 template <typename E>
 inline constexpr std::uint8_t rccast(E e) {
