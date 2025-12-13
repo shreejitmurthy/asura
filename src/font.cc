@@ -53,7 +53,7 @@ std::tuple<int, int> estimateAtlasSize(float gw, float gh, int N) {
     const int cols = static_cast<int>(std::ceil(cols_f));
     const int rows = static_cast<int>(std::ceil(static_cast<double>(N) / static_cast<double>(cols)));
 
-    int w = cols * static_cast<int>(gw);
+    int w = cols * static_cast<int>( gw);
     int h = rows * static_cast<int>(gh);
 
     return {w, h};
@@ -175,14 +175,13 @@ void Asura::FontRenderer::_init_fonts(const char* dir) {
     bool meta_valid = false;
     bool rewrite_json = false;
 
-    // --- 1. Try load existing JSON and validate header ---
     if (std::filesystem::exists(json_path)) {
         json disk;
         if (read_json_file(json_path, disk)) {
             try {
-                int first_char    = disk.at("first_char").get<int>();
-                int num_chars     = disk.at("num_chars").get<int>();
-                std::string hash  = disk.at("names_hash").get<std::string>();
+                int first_char   = disk.at("first_char").get<int>();
+                int num_chars    = disk.at("num_chars").get<int>();
+                std::string hash = disk.at("names_hash").get<std::string>();
 
                 if (first_char == FIRST_CHAR &&
                     num_chars == NUM_CHARS &&
@@ -245,8 +244,12 @@ void Asura::FontRenderer::_init_fonts(const char* dir) {
         }
 
         if (!reused) {
-            std::size_t ttf_size = 0;
-            std::uint8_t* ttf_data = read_file(ttf.c_str(), ttf_size);
+            auto ttf_bytes = read_file_vec(ttf.c_str());
+            if (ttf_bytes.empty()) {
+                log().error("Failed to read TTF at: {}", ttf);
+                continue;  // or die()
+            }
+            auto* ttf_data = ttf_bytes.data();
 
             auto [gw, gh] = estimateGlyphCellSize(ttf_data, static_cast<float>(font.size), FIRST_CHAR, NUM_CHARS);
             auto [atlas_w, atlas_h] = estimateAtlasSize(gw, gh, NUM_CHARS);
