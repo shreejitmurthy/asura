@@ -13,12 +13,12 @@
 #define FONT_KC854 (0)
 #define FONT_ORIC  (1)
 
-namespace Asura {
+namespace Asura::Debug {
 
-inline void debug(const std::string &text, sg_color colour = sg_white, int font = FONT_KC854) {
+inline void print(const std::string &text, sg_color colour = sg_white, int font = FONT_KC854) {
     sdtx_font(font);
     sdtx_color3b(colour.r * 255, colour.g * 255, colour.b * 255);
     sdtx_printf("%s\n\n", text.c_str());
 }
 
-} // Asura
+} // Asura::Debug
