@@ -14,8 +14,8 @@
 #include <nlohmann/json.hpp>
 using namespace nlohmann;
 
-#include "utils.h"
-#include "log.h"
+#include "core/utils.h"
+#include "core/log.h"
 
 #define offsetir(v) (int)offsetof(InstanceData, v)
 

@@ -3,7 +3,7 @@
 //
 
 #include "graphics.hh"
-#include "log.h"
+#include "core/log.h"
 
 // TODO: Reconsider globals.
 Asura::WindowBackend backend;
