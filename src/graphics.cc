@@ -38,6 +38,7 @@ void Asura::init(const Device& device) {
             break;
     }
 
+    // TODO:Eventually swap out slog_func for spdlog logger.
     desc.logger.func = slog_func;
     sg_setup(&desc);
 
@@ -59,21 +60,25 @@ void Asura::init(const Device& device) {
     log().info("Window Backend: {}", win_backend);
     log().info("Graphics Backend: {}", gfx_backend);
 
-    sdtx_desc_t sdtx_desc = {};
-    sdtx_desc.fonts[FONT_KC854] = sdtx_font_kc854();
-    sdtx_desc.fonts[FONT_ORIC] = sdtx_font_oric();
-    sdtx_desc.logger.func = slog_func;
-    sdtx_setup(&sdtx_desc);
+    if (device.debug) {
+        log().info("Enabled gfx debugging at {}px", device.debug_scale);
 
-    float d = static_cast<float>(device.debug_scale);
+        sdtx_desc_t sdtx_desc = {};
+        sdtx_desc.fonts[FONT_KC854] = sdtx_font_kc854();
+        sdtx_desc.fonts[FONT_ORIC] = sdtx_font_oric();
+        sdtx_desc.logger.func = slog_func;
+        sdtx_setup(&sdtx_desc);
 
-    int dpi_scale = 2 ? Asura::Device::instance().high_dpi : 1;
+        float d = static_cast<float>(device.debug_scale);
 
-    const float cx = static_cast<float>(device.width)  / dpi_scale * 1 / d;
-    const float cy = static_cast<float>(device.height) / dpi_scale * 1 / d;
+        int dpi_scale = device.high_dpi ? 2 : 1;
 
-    sdtx_canvas(cx, cy);
-    sdtx_origin(1.f, 1.f);
+        const float cx = static_cast<float>(device.width)  / dpi_scale * 1 / d;
+        const float cy = static_cast<float>(device.height) / dpi_scale * 1 / d;
+
+        sdtx_canvas(cx, cy);
+        sdtx_origin(1.f, 1.f);
+    }
 }
 
 void Asura::begin(const sg_pass_action& pass_action) {
@@ -93,7 +98,7 @@ void Asura::begin(sg_pass pass) {
 }
 
 void Asura::end() {
-    sdtx_draw();
+    if (Device::instance().debug) sdtx_draw();
     sg_end_pass();
     sg_commit();
 }
