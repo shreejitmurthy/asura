@@ -12,6 +12,11 @@ enum class WindowBackend {
     SDL, GLFW  // both should work the same
 };
 
+enum class BuildMode {
+    Debug,
+    Release,
+};
+
 class Device {
 public:
     static Device& instance() {
@@ -19,12 +24,12 @@ public:
         return inst;
     }
 
-    Device& init(int w, int h, const char* title, bool hi_dpi = false, int debug = 1) {
+    // TODO: Clarify high-dpi because I'm confused.
+    Device& init(int w, int h, const char* title, bool hi_dpi = false) {
         width = w;
         height = h;
         name = title;
         high_dpi = hi_dpi;
-        debug_scale = debug;
         return *this;
     }
 
@@ -33,12 +38,32 @@ public:
         return *this;
     }
 
+    Device& set_build_mode(const BuildMode& mode) {
+        build_mode = mode;
+        switch (mode) {
+            case BuildMode::Debug:
+                debug = true;
+                break;
+            default:  // TODO: Relevant Release stuff here.
+                debug = false;
+                break;
+        }
+        return *this;
+    }
+
+    Device& set_debug_size(int size) {
+        debug_scale = size;
+        return *this;
+    }
+
     int width;
     int height;
     std::string name;
     bool high_dpi;
-    int debug_scale;
     WindowBackend win_backend;
+    BuildMode build_mode;
+    bool debug = false;
+    int debug_scale = 1;
 
 private:
     Device() = default;
