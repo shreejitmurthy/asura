@@ -126,10 +126,10 @@ void Asura::FontRenderer::init(const std::string &fonts_dir, std::vector<Resourc
     _init_fr();
 }
 
-void Asura::FontRenderer::render(glm::mat4 projection, glm::mat4 view) {
+void Asura::FontRenderer::render(Math::Mat4 projection, Math::Mat4 view) {
     sg_apply_pipeline(pip);
 
-    glm::mat4 mvp = projection * view;
+    Math::Mat4 mvp = projection * view;
 
     text_params_t vs_params;
     vs_params.mvp = mvp;
@@ -380,14 +380,14 @@ Asura::Font* Asura::FontRenderer::_find_font(int id) {
     return &fonts[idx];
 }
 
-void Asura::FontRenderer::_queue_text(int id, std::string_view text, glm::vec2 pos, float scale, sg_color tint) {
+void Asura::FontRenderer::_queue_text(int id, std::string_view text, Math::Vec2 pos, float scale, sg_color tint) {
     Font* font = _find_font(id);
     if (!font || text.empty()) return;
     
     auto& verts   = font->batch.verts;
     auto& indices = font->batch.indices;
 
-    glm::vec4 col = {tint.r, tint.g, tint.b, tint.a};
+    Math::Vec4 col = {tint.r, tint.g, tint.b, tint.a};
 
     float x = pos.x;
     float y = pos.y;

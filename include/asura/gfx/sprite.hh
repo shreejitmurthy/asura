@@ -24,18 +24,18 @@
 
 #define MAX_INSTANCES (1024)
 
-inline static glm::mat4 get_default_projection() {
+inline static Asura::Math::Mat4 get_default_projection() {
     int dpi_scale = Asura::Device::instance().high_dpi ? 2 : 1;
     float w = static_cast<float>(Asura::Device::instance().width);
     float h = static_cast<float>(Asura::Device::instance().height);
-    return glm::ortho(0.f, w / dpi_scale, h / dpi_scale, 0.f, -1.f, 1.f);
+    return Asura::Math::Mat4::ortho(0.f, w / dpi_scale, h / dpi_scale, 0.f, -1.f, 1.f);
 }
 
 typedef struct {
     int width, height, channels;
     int x, y;
     unsigned char* data;
-    // vec4 atlas_uvs;
+    // Vec4 atlas_uvs;
     const char* name;
 } Sprite;
 
@@ -45,13 +45,13 @@ typedef struct {
 } SpriteAtlas;
 
 typedef struct {
-    glm::vec2 offset;
-    glm::vec2 uvOffset;
-    glm::vec2 worldScale;
-    glm::vec2 uvScale;
+    Asura::Math::Vec2 offset;
+    Asura::Math::Vec2 uvOffset;
+    Asura::Math::Vec2 worldScale;
+    Asura::Math::Vec2 uvScale;
     float rotation;
-    glm::vec2 pivot;
-    glm::vec4 tint;
+    Asura::Math::Vec2 pivot;
+    Asura::Math::Vec4 tint;
 } InstanceData;
 
 typedef struct InstancedRenderer {
@@ -71,8 +71,8 @@ public:
         Note: These are not typical NDC. Since Asura flips images on load, the following are vertical opposites
         of the true normalized device coordinates (ie, NDC bottom left => Asura top left).
     */
-    static glm::vec2 Centre()  { return {0.5, 0.5}; }
-    static glm::vec2 TopLeft() { return {0.0, 0.0}; }
+    static Math::Vec2 Centre()  { return {0.5, 0.5}; }
+    static Math::Vec2 TopLeft() { return {0.0, 0.0}; }
 };
 
 // Sprite
@@ -82,11 +82,11 @@ public:
 
     template <typename E>
         requires std::is_enum_v<E>
-    void push(E id, glm::vec2 position, glm::vec2 scale = {1, 1}, float rotation = 0, sg_color tint = sg_white, glm::vec2 pivot = Pivot::TopLeft(), glm::vec2 pivot_px = {0, 0}) {
+    void push(E id, Math::Vec2 position, Math::Vec2 scale = {1, 1}, float rotation = 0, sg_color tint = sg_white, Math::Vec2 pivot = Pivot::TopLeft(), Math::Vec2 pivot_px = {0, 0}) {
         _push_instance(std::to_underlying(id), position, scale, rotation, pivot, pivot_px, tint);
     }
 
-    void render(glm::mat4 projection = get_default_projection(), glm::mat4 view = glm::mat4(1.f));
+    void render(Math::Mat4 projection = get_default_projection(), Math::Mat4 view = Math::Mat4(1.f));
 
 private:
     void _clear() { ir.instances.clear(); }
@@ -111,29 +111,29 @@ private:
 
     typedef struct {
         const Sprite& tex;
-        glm::vec2 position;
-        glm::vec2 scale;
+        Math::Vec2 position;
+        Math::Vec2 scale;
         float rotation;
-        glm::vec2 pivot;
-        glm::vec2 pivot_px;
+        Math::Vec2 pivot;
+        Math::Vec2 pivot_px;
         sg_color tint;
     } InstanceDef;
 
     InstanceData _create_instance_data(InstanceDef def) {
         const Sprite& tex = def.tex;
-        glm::vec2 position = def.position;
-        glm::vec2 scale = def.scale;
+        Math::Vec2 position = def.position;
+        Math::Vec2 scale = def.scale;
         float rotation = def.rotation;
-        glm::vec2 pivot = def.pivot;
-        glm::vec2 pivot_px = def.pivot_px;
+        Math::Vec2 pivot = def.pivot;
+        Math::Vec2 pivot_px = def.pivot_px;
         sg_color tint = def.tint;
 
         InstanceData ret{};
 
-        glm::vec2 sc = scale;
-        glm::vec2 pv = pivot;
+        Math::Vec2 sc = scale;
+        Math::Vec2 pv = pivot;
 
-        if (pivot_px != glm::vec2(0)) {
+        if (pivot_px != Math::Vec2(0, 0)) {
             pv.x = pivot_px.x / static_cast<float>(tex.width);
             pv.y = pivot_px.y / static_cast<float>(tex.height);
         }
@@ -144,7 +144,7 @@ private:
         ret.worldScale.x = tex.width * sc.x;
         ret.worldScale.y = tex.height * sc.y;
 
-        glm::vec4 tintv;
+        Math::Vec4 tintv;
         if (tint.a == 0.f) {
             tintv = {1, 1, 1, 1};
         } else {
@@ -153,17 +153,17 @@ private:
 
         ret.tint = tintv;
 
-        ret.uvOffset[0] = tex.x / static_cast<float>(ir.width);
-        ret.uvOffset[1] = tex.y / static_cast<float>(ir.height);
-        ret.uvScale[0]  = tex.width  / static_cast<float>(ir.width);
-        ret.uvScale[1]  = tex.height / static_cast<float>(ir.height);
+        ret.uvOffset.x = tex.x / static_cast<float>(ir.width);
+        ret.uvOffset.y = tex.y / static_cast<float>(ir.height);
+        ret.uvScale.x  = tex.width  / static_cast<float>(ir.width);
+        ret.uvScale.y  = tex.height / static_cast<float>(ir.height);
         ret.rotation    = rotation;
         return ret;
     }
 
     void _init_ir(const std::string& path);
-    void _push_instance(int id, glm::vec2 position, glm::vec2 scale, float rotation, glm::vec2 pivot, glm::vec2 pivot_px, sg_color tint);
-    void _update_ir(glm::mat4 projection, glm::mat4 view);
+    void _push_instance(int id, Math::Vec2 position, Math::Vec2 scale, float rotation, Math::Vec2 pivot, Math::Vec2 pivot_px, sg_color tint);
+    void _update_ir(Math::Mat4 projection, Math::Mat4 view);
     void _draw_ir() const;
 };
 

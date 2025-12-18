@@ -50,7 +50,7 @@ void Asura::SpriteRenderer::init(const std::string &images_dir, std::vector<Reso
     _init_ir(atlas.path);
 }
 
-void Asura::SpriteRenderer::render(glm::mat4 projection, glm::mat4 view) {
+void Asura::SpriteRenderer::render(Math::Mat4 projection, Math::Mat4 view) {
     _update_ir(projection, view);
     _draw_ir();
     _clear();
@@ -223,10 +223,11 @@ void Asura::SpriteRenderer::_init_images(const char *dir) {
     _pack_images(dir);
 }
 
-inline glm::vec2 get_tile_uv(glm::vec2 tile_index, glm::vec2 tile_size, glm::vec2 atlas_size) {
+// For some reason this throws an error if I don't do Asura::Math instead of just Math
+inline Asura::Math::Vec2 get_tile_uv(Asura::Math::Vec2 tile_index, Asura::Math::Vec2 tile_size, Asura::Math::Vec2 atlas_size) {
     return {
-        tile_index[0] * tile_size[0] / (atlas_size[0]),
-        tile_index[1] * tile_size[1] / (atlas_size[1])
+        tile_index.x * tile_size.x / (atlas_size.x),
+        tile_index.y * tile_size.y / (atlas_size.y)
     };
 }
 
@@ -302,14 +303,14 @@ void Asura::SpriteRenderer::_init_ir(const std::string& path) {
     ir.instances.clear();
 }
 
-void Asura::SpriteRenderer::_push_instance(int id, glm::vec2 position, glm::vec2 scale, float rotation, glm::vec2 pivot, glm::vec2 pivot_px, sg_color tint) {
+void Asura::SpriteRenderer::_push_instance(int id, Math::Vec2 position, Math::Vec2 scale, float rotation, Math::Vec2 pivot, Math::Vec2 pivot_px, sg_color tint) {
     if (ir.instances.size() < MAX_INSTANCES) {
         Sprite& tex = sprites[id];
         ir.instances.push_back(_create_instance_data({tex, position, scale, rotation, pivot, pivot_px, tint}));
     }
 }
 
-void Asura::SpriteRenderer::_update_ir(glm::mat4 projection, glm::mat4 view) {
+void Asura::SpriteRenderer::_update_ir(Math::Mat4 projection, Math::Mat4 view) {
     sg_range range = { .ptr = ir.instances.data(), .size = ir.instances.size() * sizeof(InstanceData) };
     sg_update_buffer(ir.bindings.vertex_buffers[1], &range);
     ir.dirty = false;

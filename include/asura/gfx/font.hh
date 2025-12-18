@@ -7,6 +7,8 @@
 #include "resource.hh"
 #include "device.hh"
 
+#include "../core/math.hh"
+
 #include <string>
 #include <vector>
 #include <memory>
@@ -14,16 +16,14 @@
 #include <sokol/sokol_gfx.h>
 #include <sokol/util/sokol_color.h>
 
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 
 #include "stb_truetype.h"
 
-inline static glm::mat4 get_default_projectionf() {
+inline static Asura::Math::Mat4 get_default_projectionf() {
     int dpi_scale = Asura::Device::instance().high_dpi ? 2 : 1;
     float w = static_cast<float>(Asura::Device::instance().width);
     float h = static_cast<float>(Asura::Device::instance().height);
-    return glm::ortho(0.f, w / dpi_scale, h / dpi_scale, 0.f, -1.f, 1.f);
+    return Asura::Math::Mat4::ortho(0.f, w / dpi_scale, h / dpi_scale, 0.f, -1.f, 1.f);
 }
 
 static constexpr int FIRST_CHAR = 32;  // start with ASCII code 33 exclamation mark.
@@ -33,7 +33,7 @@ namespace Asura {
 struct Vertex {
     float x, y;
     float u, v;
-    glm::vec4 color;
+    Math::Vec4 color;
 };
 
 struct Font {
@@ -60,11 +60,11 @@ public:
     void init(const std::string& fonts_dir, std::vector<ResourceDef> reg = {});
      template <typename E>
         requires std::is_enum_v<E>
-    void queue(E id, std::string_view text, glm::vec2 pos, float scale = 1.f, sg_color tint = sg_white) {
+    void queue(E id, std::string_view text, Math::Vec2 pos, float scale = 1.f, sg_color tint = sg_white) {
         _queue_text(std::to_underlying(id), text, pos, scale, tint);
     }
 
-    void render(glm::mat4 projection = get_default_projectionf(), glm::mat4 view = glm::mat4(1.f));
+    void render(Math::Mat4 projection = get_default_projectionf(), Math::Mat4 view = Math::Mat4(1.f));
 
 private:  
     void _clear();
@@ -72,7 +72,7 @@ private:
     void _init_fonts(const char* dir);
     void _init_fr();
 
-    void _queue_text(int id, std::string_view text, glm::vec2 pos, float scale, sg_color tint);
+    void _queue_text(int id, std::string_view text, Math::Vec2 pos, float scale, sg_color tint);
 
     Font* _find_font(int id);
 
