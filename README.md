@@ -111,6 +111,7 @@ void draw() {
 </p>
 
 ## TODO
+- [x] Use custom math header
 - [ ] Primitives (basic lines and shapes) for debugging
 - [ ] ImGui support
 - [ ] Async asset loading
