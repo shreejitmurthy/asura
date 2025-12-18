@@ -1,3 +1,5 @@
 .vscode
 build/
 **/.DS_Store
+# hide bash scripts used for command line ops (not important for engine, just QOL for myself when programming)
+*.sh
