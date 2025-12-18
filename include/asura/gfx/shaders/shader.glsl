@@ -1,4 +1,5 @@
-@ctype mat4 glm::mat4
+@header #include "../../core/math.hh"
+@ctype mat4 Asura::Math::Mat4
 
 @vs vs_inst
 

@@ -1,4 +1,5 @@
 #pragma once
+#include "../../core/math.hh"
 /*
     #version:1# (machine generated, don't edit!)
 
@@ -85,12 +86,12 @@
 #define SMP_text_smp (1)
 #pragma pack(push,1)
 SOKOL_SHDC_ALIGN(16) typedef struct instance_params_t {
-    glm::mat4 mvp;
+    Asura::Math::Mat4 mvp;
 } instance_params_t;
 #pragma pack(pop)
 #pragma pack(push,1)
 SOKOL_SHDC_ALIGN(16) typedef struct text_params_t {
-    glm::mat4 mvp;
+    Asura::Math::Mat4 mvp;
 } text_params_t;
 #pragma pack(pop)
 /*
