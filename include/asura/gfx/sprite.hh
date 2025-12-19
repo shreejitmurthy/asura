@@ -8,9 +8,6 @@
 #include <utility>
 #include <string>
 
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-
 #include <sokol/sokol_gfx.h>
 
 #include <sokol/util/sokol_color.h>
