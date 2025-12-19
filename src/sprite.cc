@@ -46,7 +46,11 @@ inline static sg_buffer make_ibuf() {
 
 void Asura::SpriteRenderer::init(const std::string &images_dir, std::vector<ResourceDef> reg) {
     kSpriteDefs = reg;
-    _init_images(images_dir.c_str());
+    auto res = findPath(images_dir);
+    auto path = res.unwrap([images_dir]() {
+        Log::get().error("Failed to parse directory at: {}", images_dir);
+    });
+    _init_images(path.c_str());
     _init_ir(atlas.path);
 }
 
@@ -116,7 +120,7 @@ void Asura::SpriteRenderer::_pack(const PackDef& def) {
     }
 
     write_json_file(join_path_json(out_dir, "atlas"), j);
-    log().info("Packaged images into: {}", atlas.path);
+    Log::get().info("Packaged images into: {}", atlas.path);
 }
 
 void Asura::SpriteRenderer::_pack_images(const std::string &out_dir) {
@@ -189,7 +193,7 @@ void Asura::SpriteRenderer::_pack_images(const std::string &out_dir) {
             auto& js = data["sprites"][s.name];
             s.x = js.value("x", 0);
         }
-        log().info("Reused atlas from metadata: {}", atlas.path);
+        Log::get().info("Reused atlas from metadata: {}", atlas.path);
     }
 }
 
@@ -216,7 +220,7 @@ void Asura::SpriteRenderer::_init_images(const char *dir) {
         tex.width = w; tex.height = h; tex.channels = 4; tex.data = img;
         tex.name = kSpriteDefs[i].name;
         sprites[id] = tex;
-        log().info("Loaded image \033[1m{}\033[0m (enum id={})", kSpriteDefs[i].name, kSpriteDefs[i].id);
+        Log::get().info("Loaded image \033[1m{}\033[0m (enum id={})", kSpriteDefs[i].name, kSpriteDefs[i].id);
     }
 
     sprite_count = highest_id + 1;

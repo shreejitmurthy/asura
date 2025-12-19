@@ -87,12 +87,12 @@ inline bool read_font_cache(Asura::Font& font, const std::string& path, std::siz
     uint64_t bitmap_size = 0;
     in.read(reinterpret_cast<char*>(&bitmap_size), sizeof(bitmap_size));
     if (!in) {
-        Asura::log().error("Bad read on bitmap size for {} from: {}", font.name, path);
+        Asura::Log::get().error("Bad read on bitmap size for {} from: {}", font.name, path);
         return false;
     }
 
     if (bitmap_size != expected_bitmap_size) {
-        Asura::log().error("Bitmap size mismatch in cache for font {} at: {} (expected {}, got {})", 
+        Asura::Log::get().error("Bitmap size mismatch in cache for font {} at: {} (expected {}, got {})", 
             font.name, path, expected_bitmap_size, bitmap_size);
         return false;  // fallback to regenerate
     }
@@ -102,7 +102,7 @@ inline bool read_font_cache(Asura::Font& font, const std::string& path, std::siz
         in.read(reinterpret_cast<char*>(font.bitmap.data()),
                 static_cast<std::streamsize>(bitmap_size));
         if (!in) {
-            Asura::log().error("Bad read on bitmap for {} from: {}", font.name, path);
+            Asura::Log::get().error("Bad read on bitmap for {} from: {}", font.name, path);
             return false;
         }
     }
@@ -111,7 +111,7 @@ inline bool read_font_cache(Asura::Font& font, const std::string& path, std::siz
     in.read(reinterpret_cast<char*>(font.chars.data()),
             static_cast<std::streamsize>(NUM_CHARS * sizeof(stbtt_bakedchar)));
     if (!in) {
-        Asura::log().error("Bad read on baked chars for {} from: {}", font.name, path);
+        Asura::Log::get().error("Bad read on baked chars for {} from: {}", font.name, path);
         return false;
     }
 
@@ -192,10 +192,10 @@ void Asura::FontRenderer::_init_fonts(const char* dir) {
                     meta = disk;
                     meta_valid = true;
                 } else {
-                    log().info("Font metadata header changed, will rebuild fonts.json");
+                    Log::get().info("Font metadata header changed, will rebuild fonts.json");
                 }
             } catch (const std::exception& e) {
-                log().error("Error reading font metadata header: {}", e.what());
+                Log::get().error("Error reading font metadata header: {}", e.what());
             }
         }
     }
@@ -234,19 +234,19 @@ void Asura::FontRenderer::_init_fonts(const char* dir) {
 
                 if (read_font_cache(font, bin, bitmap_size)) {
                     reused = true;
-                    log().info("Reused bitmap font \033[1m{}\033[0m from cache (enum id={})", name, id);
+                    Log::get().info("Reused bitmap font \033[1m{}\033[0m from cache (enum id={})", name, id);
                 } else {
-                    log().warn("Failed to read cache for font {}, will re-bake", name);
+                    Log::get().warn("Failed to read cache for font {}, will re-bake", name);
                 }
             } catch (const std::exception& e) {
-                log().error("JSON error for font {}: {}", name, e.what());
+                Log::get().error("JSON error for font {}: {}", name, e.what());
             }
         }
 
         if (!reused) {
             auto ttf_bytes = read_file_vec(ttf.c_str());
             if (ttf_bytes.empty()) {
-                log().error("Failed to read TTF at: {}", ttf);
+                Log::get().error("Failed to read TTF at: {}", ttf);
                 continue;  // or die()
             }
             auto* ttf_data = ttf_bytes.data();
@@ -284,7 +284,7 @@ void Asura::FontRenderer::_init_fonts(const char* dir) {
 
             rewrite_json = true;
 
-            log().info("Generated bitmap font \033[1m{}\033[0m (enum id={})", name, id);
+            Log::get().info("Generated bitmap font \033[1m{}\033[0m (enum id={})", name, id);
         }
 
         

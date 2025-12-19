@@ -57,11 +57,11 @@ void Asura::init(const Device& device) {
             break;
     }
 
-    log().info("Window Backend: {}", win_backend);
-    log().info("Graphics Backend: {}", gfx_backend);
+    Log::get().info("Window Backend: {}", win_backend);
+    Log::get().info("Graphics Backend: {}", gfx_backend);
 
     if (device.debug) {
-        log().info("Enabled gfx debugging at {}px", device.debug_scale);
+        Log::get().info("Enabled gfx debugging at {}px", device.debug_scale);
 
         sdtx_desc_t sdtx_desc = {};
         sdtx_desc.fonts[FONT_KC854] = sdtx_font_kc854();
