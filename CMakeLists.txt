@@ -9,7 +9,6 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-add_subdirectory(vendor/glm)
 add_subdirectory(vendor/spdlog)
 add_subdirectory(vendor/json)
 
@@ -68,7 +67,6 @@ target_include_directories(asura
 # These are also the libraries used across the core/
 target_link_libraries(asura
     PUBLIC
-        glm::glm
         spdlog::spdlog
         nlohmann_json::nlohmann_json
 )
