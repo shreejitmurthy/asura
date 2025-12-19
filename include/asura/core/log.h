@@ -3,8 +3,8 @@
 
 #include <memory>
 
-namespace Asura {
-inline spdlog::logger& log() {
+namespace Asura::Log {
+static inline spdlog::logger& get() {
     static auto logger = []{
         auto l = spdlog::stdout_color_mt("logsura");
         l->set_pattern("\033[2m[%T.%e | +%2oms]\033[0m [%^%l%$] %v");
