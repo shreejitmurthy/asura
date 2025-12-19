@@ -10,9 +10,12 @@
 #include <fstream>
 #include <string_view>
 
+namespace fs = std::filesystem;
+
 #include <nlohmann/json.hpp>
 
-#include <spdlog/spdlog.h>
+#include "log.h"
+#include "result.hh"
 
 // Reference: https://graphics.stanford.edu/%7Eseander/bithacks.html#RoundUpPowerOf2
 // static uint32_t round_pow2(float v) {
@@ -25,7 +28,7 @@
 
 // Should only be used when developing, remove all instances in code for release.
 inline static void die(const std::string& msg) {
-    spdlog::critical(msg);
+    Asura::Log::get().critical(msg);
     exit(1);
 }
 
@@ -116,5 +119,41 @@ inline std::vector<std::uint8_t> readBinary(const std::string& path, std::size_t
     std::ifstream(path, std::ios::in | std::ios::binary)
         .read(reinterpret_cast<char*>(data.data()), static_cast<std::streamsize>(data.size()));
     return data;
+}
+
+inline fs::path findAsuraPath(const fs::path &startDir) {
+    fs::path dir = startDir;
+    while (true) {
+        fs::path potentialPath = dir / "asura";
+        if (fs::exists(potentialPath) && fs::is_directory(potentialPath)) {
+            return fs::absolute(potentialPath);
+        }
+
+        if (dir == dir.root_path()) {
+            die("Asura directory not found");
+        }
+
+        dir = dir.parent_path();
+    }
+}
+
+static constexpr int _ERR = 1;
+
+inline Asura::Result<std::string, int> findPath(const fs::path& targetPath, const fs::path& startDir = fs::current_path()) {
+    fs::path dir = startDir;
+
+    while (true) {
+        fs::path potentialPath = dir / targetPath;
+        if (fs::exists(potentialPath)) {
+            // return fs::absolute(potentialPath);
+            return Asura::Result<std::string, int>(fs::absolute(potentialPath));
+        }
+
+        if (dir == dir.root_path()) {
+            return Asura::Result<std::string, int>(_ERR);
+        }
+
+        dir = dir.parent_path();
+    }
 }
 
