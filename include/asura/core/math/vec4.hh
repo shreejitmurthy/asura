@@ -27,5 +27,8 @@ struct Vec4 {
 
     friend constexpr Vec4 operator*(float s, const Vec4& v) noexcept { return {v.x * s, v.y * s, v.z * s, v.w * s}; }
 
+    static constexpr Vec4 lerp(const Vec4& a, const Vec4& b, float t) noexcept {
+        return {a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t, a.z + (b.z - a.z) * t, a.w + (b.w - a.w) * t};
+    }
 };
 } // Asura
