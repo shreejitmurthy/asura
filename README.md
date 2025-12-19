@@ -21,7 +21,6 @@ This is similar to another one of my projects, [SmallGraphicsLayer](https://gith
 ## Dependencies
 Asura requires a few dependencies:
 - [sokol](https://github.com/floooh/sokol): Cross-platform graphics abstraction.
-- [glm](https://github.com/g-truc/glm): Vector mathematics (to be phased out in favour of a custom math header).
 - [spdlog](https://github.com/gabime/spdlog): Fast console logging.
 - [json](https://github.com/nlohmann/json): Used in asset metadata creation for faster game reloads.
 
@@ -69,9 +68,9 @@ static const std::vector<Asura::ResourceDef> fontRegistry = {
 void init() {
     Asura::init();
 
-    sr.init("../res/images/", spriteRegistry);
+    sr.init("res/images/", spriteRegistry);
     
-    fr.init("../res/fonts/", fontRegistry);
+    fr.init("res/fonts/", fontRegistry);
 }
 ```
 ### GPU Instanced Sprite Renderer
