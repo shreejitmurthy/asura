@@ -122,6 +122,11 @@ inline bool read_font_cache(Asura::Font& font, const std::string& path, std::siz
 void Asura::FontRenderer::init(const std::string &fonts_dir, std::vector<ResourceDef> reg) {
     id_to_font_index.fill(-1);
     kFontDefs = std::move(reg);
+    auto res = findPath(fonts_dir);
+    auto path = res.unwrap([fonts_dir]() {
+        Log::get().error("Failed to parse directory at: {}", fonts_dir);
+    });
+    // Log::get().info("Parsed dir: {}", path);
     _init_fonts(fonts_dir.c_str());
     _init_fr();
 }
@@ -168,7 +173,9 @@ void Asura::FontRenderer::_init_fonts(const char* dir) {
     fonts.reserve(kFontDefs.size());
     id_to_font_index.fill(-1);
 
-    const std::string json_path = join_path_json(dir, "fonts");
+    const std::string json_path = findPath(join_path_json(dir, "fonts")).unwrap([dir](){
+        Log::get().error("Failed to parse directory at: {}", dir);
+    });
     const std::string expected_hash = std::to_string(compute_resource_hash(kFontDefs));
 
     ordered_json meta;
@@ -214,9 +221,15 @@ void Asura::FontRenderer::_init_fonts(const char* dir) {
         font.name = name;
         font.size = pixel_size;
 
-        std::string png = join_path_png(dir, font.name);
-        std::string ttf = join_path_ttf(dir, font.name);
-        std::string bin = join_path_bin(dir, font.name);
+        auto png = findPath(join_path_png(dir, font.name)).unwrap([dir]() {
+            Log::get().error("Failed to parse directory at: {}", dir);
+        });
+        auto ttf = findPath(join_path_ttf(dir, font.name)).unwrap([dir]() {
+            Log::get().error("Failed to parse directory at: {}", dir);
+        });
+        auto bin = findPath(join_path_bin(dir, font.name)).unwrap([dir]() {
+            Log::get().error("Failed to parse directory at: {}", dir);
+        });
 
         bool have_meta = meta_valid && meta.contains("fonts") && meta["fonts"].contains(font.name);
 
