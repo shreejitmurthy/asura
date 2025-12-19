@@ -82,7 +82,8 @@ void draw() {
     Asura::begin(pass_action);
 
     sr.push(SpriteID::Player, {100, 100});
-    sr.push(SpriteID::Enemy,  {400, 500}, {2, 2}, program_runtime, Asura::Pivot::Centre());  // position, scale, rotation
+
+    sr.push(SpriteID::Enemy,  {400, 500}, {2, 2}, program_runtime, Asura::Pivot::Centre());
 
     sr.render();
 
@@ -108,6 +109,34 @@ void draw() {
 <p align="center">
     <img src="imgs/logging.png" width=600>
 </p>
+
+### Basic Math Functions
+Asura's math headers contain only what's necessary for Asura to run, no bloat.
+```cpp
+#include "vec2.hh"
+#include "vec3.hh"
+#include "vec4.hh"
+#include "mat4.hh"
+using namespace Asura::Math;
+
+Vec2 a{1,2}, b{4,6};                      // init + basic ops
+Vec2 dir = (b - a).normalized(), n2 = dir.perp();  float dist2 = (b - a).length2();
+Vec2 eased = Vec2::lerp(a, b, 0.25f);     // nice for animation / smoothing
+
+iVec2 A{0,0}, B{1920,1080};               // integer grid -> float interpolation
+Vec2 px = Vec2::lerp(A, B, 0.5f);
+
+Vec3 up{0,1,0}, fwd{0,0,-1};              // cross gives a perpendicular axis
+Vec3 right = up.cross(fwd).normalized();
+
+Mat4 M = Mat4::translate({2,0,0}) * Mat4::rotateY(0.5f) * Mat4::scale({2,1,2});
+Vec3 worldP = M.multiplyPoint({1,2,3});   // point gets translation, a vector wouldn’t
+
+Mat4 P = Mat4::orthoCentered(800, 600, 0.1f, 100.f, true);
+float yScale = P(1,1);                    // direct matrix element access (row, col)
+
+Vec4 clip{worldP.x, worldP.y, worldP.z, 1.f} * 0.5f;  // handy homogeneous packaging
+```
 
 ## TODO
 - [x] Use custom math header
