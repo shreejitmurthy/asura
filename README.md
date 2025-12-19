@@ -112,6 +112,7 @@ void draw() {
 
 ## TODO
 - [x] Use custom math header
+- [x] Safe directory parsing.
 - [ ] Primitives (basic lines and shapes) for debugging
 - [ ] ImGui support
 - [ ] Async asset loading
