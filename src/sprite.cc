@@ -50,6 +50,7 @@ void Asura::SpriteRenderer::init(const std::string &images_dir, std::vector<Reso
     auto path = res.unwrap([images_dir]() {
         Log::get().error("Failed to parse directory at: {}", images_dir);
     });
+    // Log::get().info("Parsed dir: {}", path);
     _init_images(path.c_str());
     _init_ir(atlas.path);
 }
@@ -193,7 +194,7 @@ void Asura::SpriteRenderer::_pack_images(const std::string &out_dir) {
             auto& js = data["sprites"][s.name];
             s.x = js.value("x", 0);
         }
-        Log::get().info("Reused atlas from metadata: {}", atlas.path);
+        Log::get().info("Reused atlas from metadata: {}", std::filesystem::relative(atlas.path).string());
     }
 }
 
