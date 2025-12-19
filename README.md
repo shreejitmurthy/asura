@@ -111,31 +111,28 @@ void draw() {
 </p>
 
 ### Basic Math Functions
-Asura's math headers contain only what's necessary for Asura to run, no bloat.
+Asura's math headers contain only what's necessary for Asura to run, minimal bloat.
 ```cpp
-#include "vec2.hh"
-#include "vec3.hh"
-#include "vec4.hh"
-#include "mat4.hh"
+#include <asura/math.hh>
 using namespace Asura::Math;
 
-Vec2 a{1,2}, b{4,6};                      // init + basic ops
-Vec2 dir = (b - a).normalized(), n2 = dir.perp();  float dist2 = (b - a).length2();
-Vec2 eased = Vec2::lerp(a, b, 0.25f);     // nice for animation / smoothing
+Vec2 a{1.f, 2.f}, b{4.f, 6.f};
+Vec2 dir2 = (b - a).normalized();               // safe normalize (eps)
+Vec2 n2   = dir2.perp();                        // 90 CCW normal (2D)
+Vec2 ease = Vec2::lerp(a, b, 0.25f);            // smooth-ish stepping
+float d2  = a.dot(b), len2 = (b - a).length2();
 
-iVec2 A{0,0}, B{1920,1080};               // integer grid -> float interpolation
-Vec2 px = Vec2::lerp(A, B, 0.5f);
+iVec2 A{0, 0}, B{1920, 1080};
+Vec2  midPx = iVec2::lerp(A, B, 0.5f);          // int grid -> float result
 
-Vec3 up{0,1,0}, fwd{0,0,-1};              // cross gives a perpendicular axis
-Vec3 right = up.cross(fwd).normalized();
+Vec3 up{0.f, 1.f, 0.f}, fwd{0.f, 0.f, -1.f};
+Vec3 right = up.cross(fwd).normalized();        // orthonormal axis
 
-Mat4 M = Mat4::translate({2,0,0}) * Mat4::rotateY(0.5f) * Mat4::scale({2,1,2});
-Vec3 worldP = M.multiplyPoint({1,2,3});   // point gets translation, a vector wouldn’t
+Mat4 M = Mat4::translate({2.f, 0.f, 0.f}) * Mat4::rotateY(0.5f) * Mat4::scale({2.f, 1.f, 2.f});
+Vec3 worldP = M.multiplyPoint({1.f, 2.f, 3.f});  // includes translation + perspective divide
 
-Mat4 P = Mat4::orthoCentered(800, 600, 0.1f, 100.f, true);
-float yScale = P(1,1);                    // direct matrix element access (row, col)
-
-Vec4 clip{worldP.x, worldP.y, worldP.z, 1.f} * 0.5f;  // handy homogeneous packaging
+Mat4 P = Mat4::orthoCentered(800.f, 600.f, 0.1f, 100.f, true);
+float yScale = P(1, 1);                          // direct element access (row, col)
 ```
 
 ## TODO
