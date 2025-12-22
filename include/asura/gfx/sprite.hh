@@ -28,6 +28,8 @@ inline static Asura::Math::Mat4 get_default_projection() {
     return Asura::Math::Mat4::ortho(0.f, w / dpi_scale, h / dpi_scale, 0.f, -1.f, 1.f);
 }
 
+namespace Asura {
+
 typedef struct {
     int width, height, channels;
     int x, y;
@@ -61,7 +63,6 @@ typedef struct InstancedRenderer {
     sg_pipeline pipeline;
 } InstancedRenderer;
 
-namespace Asura {
 class Pivot {
 public:
     /*
