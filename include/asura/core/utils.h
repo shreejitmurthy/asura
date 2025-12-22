@@ -103,7 +103,7 @@ inline std::vector<std::uint8_t> read_file_vec(const char* filename) {
     return buf;
 }
 
-// Casting
+// Cast to integer for resource definitions
 template <typename E>
 inline constexpr std::uint8_t rccast(E e) {
     return static_cast<int>(e);
