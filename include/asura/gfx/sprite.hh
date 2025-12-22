@@ -78,9 +78,26 @@ public:
     void init(const std::string& images_dir, std::vector<ResourceDef> reg);
 
     template <typename E>
-        requires std::is_enum_v<E>
-    void push(E id, Math::Vec2 position, Math::Vec2 scale = {1, 1}, float rotation = 0, sg_color tint = sg_white, Math::Vec2 pivot = Pivot::TopLeft(), Math::Vec2 pivot_px = {0, 0}) {
+    requires std::is_enum_v<E>
+    void push(E id, 
+            Math::Vec2 position,
+            Math::Vec2 scale = {1, 1}, float rotation = 0,
+            Math::Vec4 tint = {1, 1, 1, 1},
+            Math::Vec2 pivot = Pivot::TopLeft(), Math::Vec2 pivot_px = {0, 0}) 
+    {
         _push_instance(std::to_underlying(id), position, scale, rotation, pivot, pivot_px, tint);
+    }
+
+    template <typename E>
+    requires std::is_enum_v<E>
+    void push(E id, 
+            Math::Vec2 position,
+            Math::Vec2 scale, float rotation,
+            sg_color tint = sg_white,
+            Math::Vec2 pivot = Pivot::TopLeft(), Math::Vec2 pivot_px = {0, 0}) 
+    {
+        Math::Vec4 tintv = {tint.r, tint.g, tint.b, tint.a};
+        _push_instance(std::to_underlying(id), position, scale, rotation, pivot, pivot_px, tintv);
     }
 
     void render(Math::Mat4 projection = get_default_projection(), Math::Mat4 view = Math::Mat4(1.f));
@@ -113,17 +130,17 @@ private:
         float rotation;
         Math::Vec2 pivot;
         Math::Vec2 pivot_px;
-        sg_color tint;
+        Math::Vec4 tint;
     } InstanceDef;
 
     InstanceData _create_instance_data(InstanceDef def) {
         const Sprite& tex = def.tex;
-        Math::Vec2 position = def.position;
-        Math::Vec2 scale = def.scale;
-        float rotation = def.rotation;
-        Math::Vec2 pivot = def.pivot;
-        Math::Vec2 pivot_px = def.pivot_px;
-        sg_color tint = def.tint;
+        auto position = def.position;
+        auto scale = def.scale;
+        auto rotation = def.rotation;
+        auto pivot = def.pivot;
+        auto pivot_px = def.pivot_px;
+        auto tint = def.tint;
 
         InstanceData ret{};
 
@@ -141,14 +158,7 @@ private:
         ret.worldScale.x = tex.width * sc.x;
         ret.worldScale.y = tex.height * sc.y;
 
-        Math::Vec4 tintv;
-        if (tint.a == 0.f) {
-            tintv = {1, 1, 1, 1};
-        } else {
-            tintv = {tint.r, tint.g, tint.b, tint.a};
-        }
-
-        ret.tint = tintv;
+        ret.tint = tint;
 
         ret.uvOffset.x = tex.x / static_cast<float>(ir.width);
         ret.uvOffset.y = tex.y / static_cast<float>(ir.height);
@@ -159,7 +169,7 @@ private:
     }
 
     void _init_ir(const std::string& path);
-    void _push_instance(int id, Math::Vec2 position, Math::Vec2 scale, float rotation, Math::Vec2 pivot, Math::Vec2 pivot_px, sg_color tint);
+    void _push_instance(int id, Math::Vec2 position, Math::Vec2 scale, float rotation, Math::Vec2 pivot, Math::Vec2 pivot_px, Math::Vec4 tint);
     void _update_ir(Math::Mat4 projection, Math::Mat4 view);
     void _draw_ir() const;
 };

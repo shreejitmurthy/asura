@@ -308,7 +308,7 @@ void Asura::SpriteRenderer::_init_ir(const std::string& path) {
     ir.instances.clear();
 }
 
-void Asura::SpriteRenderer::_push_instance(int id, Math::Vec2 position, Math::Vec2 scale, float rotation, Math::Vec2 pivot, Math::Vec2 pivot_px, sg_color tint) {
+void Asura::SpriteRenderer::_push_instance(int id, Math::Vec2 position, Math::Vec2 scale, float rotation, Math::Vec2 pivot, Math::Vec2 pivot_px, Math::Vec4 tint) {
     if (ir.instances.size() < MAX_INSTANCES) {
         Sprite& tex = sprites[id];
         ir.instances.push_back(_create_instance_data({tex, position, scale, rotation, pivot, pivot_px, tint}));
