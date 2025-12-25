@@ -45,7 +45,6 @@ inline static sg_buffer make_ibuf() {
     return sg_make_buffer(&ibuf_desc);
 }
 
-
 void Asura::SpriteRenderer::init(const std::string &images_dir, std::vector<ResourceDef> reg) {
     kSpriteDefs = reg;
     ir.vs_params.mvp = Utils::Gfx::get_default_projection(Device::instance().high_dpi ? 2 : 1);
