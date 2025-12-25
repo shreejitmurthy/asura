@@ -151,4 +151,4 @@ struct Mat4 {
         return ortho(-hw, hw, -hh, hh, zNear, zFar, depthZeroToOne);
     }
 };
-} // Asura
+} // Asura::Math
