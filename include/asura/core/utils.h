@@ -16,22 +16,35 @@ namespace fs = std::filesystem;
 
 #include "log.h"
 #include "result.hh"
+#include "math.hh"
 
-// Reference: https://graphics.stanford.edu/%7Eseander/bithacks.html#RoundUpPowerOf2
-// static uint32_t round_pow2(float v) {
-//     uint32_t vi = ((uint32_t) v) - 1;
-//     if (vi == 0) return 1;  // clamp to 1
-//     for (int shift = 1; shift < 32; shift <<= 1) vi |= vi >> shift;
-//     vi++;
-//     return vi;
-// }
+/* GENERAL UTILITIES */
+namespace Asura::Utils {
 
-// Should only be used when developing, remove all instances in code for release.
-inline static void die(const std::string& msg) {
-    Asura::Log::get().critical(msg);
+/* TODO
+ * Should only be used when developing, remove all instances in code for release.
+ * Consider checking for Device BuildMode.
+ */
+static void die(const std::string& msg) {
+    Log::get().critical(msg);
     exit(1);
 }
 
+// Consider moving to seperate Resource namespace should more asset-related functions arise.
+// Cast to integer for resource definitions
+template <typename E>
+inline constexpr std::uint8_t rccast(E e) {
+    return static_cast<int>(e);
+}
+
+} // Asura::Utils
+
+
+
+
+
+/* SYSTEM UTILITIES (file i/o, paths) */
+namespace Asura::Utils::System {
 inline std::string join_path_png(std::string_view dir, std::string_view name) {
     std::filesystem::path path(dir);
     path /= name;
@@ -58,14 +71,6 @@ inline std::string join_path_bin(std::string_view dir, std::string_view name) {
     path /= name;
     path.replace_extension(".bin");
     return path.string();
-}
-
-inline static char* dup_cstr(const char* s) {
-    size_t n = strlen(s) + 1;
-    char* p = (char*)malloc(n);
-    if (!p) die("oom");
-    memcpy(p, s, n);
-    return p;
 }
 
 inline bool read_json_file(const std::string& path, nlohmann::json& out) {
@@ -103,12 +108,6 @@ inline std::vector<std::uint8_t> read_file_vec(const char* filename) {
     return buf;
 }
 
-// Cast to integer for resource definitions
-template <typename E>
-inline constexpr std::uint8_t rccast(E e) {
-    return static_cast<int>(e);
-}
-
 inline void writeBinary(const std::vector<std::uint8_t>& data, const std::string& path) {
     std::ofstream file(path, std::ios::out | std::ios::binary);
     file.write(reinterpret_cast<const char*>(data.data()), static_cast<std::streamsize>(data.size()));
@@ -137,23 +136,38 @@ inline fs::path findAsuraPath(const fs::path &startDir) {
     }
 }
 
-static constexpr int _ERR = 1;
-
-inline Asura::Result<std::string, int> findPath(const fs::path& targetPath, const fs::path& startDir = fs::current_path()) {
+inline Result<std::string, int> findPath(const fs::path& targetPath, const fs::path& startDir = fs::current_path()) {
     fs::path dir = startDir;
 
     while (true) {
-        fs::path potentialPath = dir / targetPath;
-        if (fs::exists(potentialPath)) {
+        if (fs::path potentialPath = dir / targetPath; fs::exists(potentialPath)) {
             // return fs::absolute(potentialPath);
-            return Asura::Result<std::string, int>(fs::absolute(potentialPath));
+            return {fs::absolute(potentialPath)};
         }
 
         if (dir == dir.root_path()) {
-            return Asura::Result<std::string, int>(_ERR);
+            return {true};
         }
 
         dir = dir.parent_path();
     }
 }
+
+} // Asura::Utils::System
+
+
+
+
+
+/* GRAPHICS UTILITIES (math functionality) */
+namespace Asura::Utils::Gfx {
+
+inline static Math::Mat4 get_default_projection(int dpi_scale) {
+    auto w = static_cast<float>(Asura::Device::instance().width);
+    auto h = static_cast<float>(Asura::Device::instance().height);
+    return Math::Mat4::ortho(0.f, w / dpi_scale, h / dpi_scale, 0.f, -1.f, 1.f);
+}
+
+} // Asura::Utils::Gfx
+
 
