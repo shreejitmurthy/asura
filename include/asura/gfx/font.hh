@@ -7,24 +7,17 @@
 #include "resource.hh"
 #include "device.hh"
 
+// FIXME: these includes are chopped
 #include "../core/math.hh"
+#include "../core/utils.h"
 
 #include <string>
 #include <vector>
-#include <memory>
 
 #include <sokol/sokol_gfx.h>
 #include <sokol/util/sokol_color.h>
 
-
 #include "stb_truetype.h"
-
-inline static Asura::Math::Mat4 get_default_projectionf() {
-    int dpi_scale = Asura::Device::instance().high_dpi ? 2 : 1;
-    float w = static_cast<float>(Asura::Device::instance().width);
-    float h = static_cast<float>(Asura::Device::instance().height);
-    return Asura::Math::Mat4::ortho(0.f, w / dpi_scale, h / dpi_scale, 0.f, -1.f, 1.f);
-}
 
 static constexpr int FIRST_CHAR = 32;  // start with ASCII code 33 exclamation mark.
 static constexpr int NUM_CHARS  = 95;  // end with ASCII code 127
@@ -64,7 +57,7 @@ public:
         _queue_text(std::to_underlying(id), text, pos, scale, tint);
     }
 
-    void render(Math::Mat4 projection = get_default_projectionf(), Math::Mat4 view = Math::Mat4(1.f));
+    void render(Math::Mat4 projection = Utils::Gfx::get_default_projection(Device::instance().high_dpi ? 2 : 1), Math::Mat4 view = Math::Mat4(1.f));
 
 private:  
     void _clear();

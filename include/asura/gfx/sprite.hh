@@ -18,15 +18,9 @@
 
 #include "resource.hh"
 #include "device.hh"
+#include "../core/utils.h"
 
 #define MAX_INSTANCES (1024)
-
-inline static Asura::Math::Mat4 get_default_projection() {
-    int dpi_scale = Asura::Device::instance().high_dpi ? 2 : 1;
-    float w = static_cast<float>(Asura::Device::instance().width);
-    float h = static_cast<float>(Asura::Device::instance().height);
-    return Asura::Math::Mat4::ortho(0.f, w / dpi_scale, h / dpi_scale, 0.f, -1.f, 1.f);
-}
 
 namespace Asura {
 
@@ -44,13 +38,13 @@ typedef struct {
 } SpriteAtlas;
 
 typedef struct {
-    Asura::Math::Vec2 offset;
-    Asura::Math::Vec2 uvOffset;
-    Asura::Math::Vec2 worldScale;
-    Asura::Math::Vec2 uvScale;
+    Math::Vec2 offset;
+    Math::Vec2 uvOffset;
+    Math::Vec2 worldScale;
+    Math::Vec2 uvScale;
     float rotation;
-    Asura::Math::Vec2 pivot;
-    Asura::Math::Vec4 tint;
+    Math::Vec2 pivot;
+    Math::Vec4 tint;
 } InstanceData;
 
 typedef struct InstancedRenderer {
@@ -66,9 +60,9 @@ typedef struct InstancedRenderer {
 class Pivot {
 public:
     /*
-        Note: These are not typical NDC. Since Asura flips images on load, the following are vertical opposites
-        of the true normalized device coordinates (ie, NDC bottom left => Asura top left).
-    */
+     * Note: These are not typical NDC. Since Asura flips images on load, the following are vertical opposites
+     * of the true normalized device coordinates (ie, NDC bottom left => Asura top left).
+     */
     static Math::Vec2 Centre()  { return {0.5, 0.5}; }
     static Math::Vec2 TopLeft() { return {0.0, 0.0}; }
 };
@@ -101,16 +95,16 @@ public:
         _push_instance(std::to_underlying(id), position, scale, rotation, pivot, pivot_px, tintv);
     }
 
-    void render(Math::Mat4 projection = get_default_projection(), Math::Mat4 view = Math::Mat4(1.f));
+    void render(Math::Mat4 projection = Utils::Gfx::get_default_projection(Device::instance().high_dpi ? 2 : 1), Math::Mat4 view = Math::Mat4(1.f));
 
 private:
     void _clear() { ir.instances.clear(); }
     
     std::vector<ResourceDef> kSpriteDefs;
     std::vector<Sprite> sprites;
-    InstancedRenderer ir;
-    SpriteAtlas atlas;
-    int sprite_count;
+    InstancedRenderer ir = {};
+    SpriteAtlas atlas = {};
+    int sprite_count = 0;
 
     typedef struct {
         int sizeX, sizeY;
@@ -124,17 +118,17 @@ private:
     void _pack_images(const std::string& out_dir);
     void _init_images(const char* dir);
 
-    typedef struct {
+    typedef struct InstanceDef {
         const Sprite& tex;
         Math::Vec2 position;
         Math::Vec2 scale;
-        float rotation;
+        float rotation = 0.f;
         Math::Vec2 pivot;
         Math::Vec2 pivot_px;
         Math::Vec4 tint;
     } InstanceDef;
 
-    InstanceData _create_instance_data(InstanceDef def) {
+    InstanceData _create_instance_data(const InstanceDef &def) {
         const Sprite& tex = def.tex;
         auto position = def.position;
         auto scale = def.scale;
@@ -165,7 +159,7 @@ private:
         ret.uvOffset.y = tex.y / static_cast<float>(ir.height);
         ret.uvScale.x  = tex.width  / static_cast<float>(ir.width);
         ret.uvScale.y  = tex.height / static_cast<float>(ir.height);
-        ret.rotation    = rotation;
+        ret.rotation   = rotation;
         return ret;
     }
 

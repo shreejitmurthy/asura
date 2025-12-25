@@ -16,6 +16,8 @@ using namespace nlohmann;
 
 #include "core/utils.h"
 #include "core/log.h"
+using namespace Asura::Utils;
+using namespace Asura::Utils::System;
 
 #define offsetir(v) (int)offsetof(InstanceData, v)
 
@@ -237,7 +239,7 @@ inline Asura::Math::Vec2 get_tile_uv(Asura::Math::Vec2 tile_index, Asura::Math::
 }
 
 void Asura::SpriteRenderer::_init_ir(const std::string& path) {
-    ir.vs_params.mvp = get_default_projection();
+    ir.vs_params.mvp = Gfx::get_default_projection(Device::instance().high_dpi ? 2 : 1);
 
     sg_shader shader = sg_make_shader(instance_shader_desc(sg_query_backend()));
     int w, h;

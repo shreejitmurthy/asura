@@ -5,6 +5,8 @@
 #include <utility>
 
 #include "font.hh"
+using namespace Asura::Utils;
+using namespace Asura::Utils::System;
 
 #define STB_TRUETYPE_IMPLEMENTATION
 #include <stb_truetype.h>
@@ -12,9 +14,6 @@
 
 #include <nlohmann/json.hpp>
 using namespace nlohmann;
-
-#include "core/utils.h"
-#include "core/log.h"
 
 #include "shaders/shader.glsl.h"
 
@@ -37,8 +36,8 @@ std::tuple<float, float> estimateGlyphCellSize(unsigned char* ttf, float pixel_h
         int x0, y0, x1, y1;
         stbtt_GetCodepointBitmapBox(&font, point, scale, scale, &x0, &y0, &x1, &y1);
 
-        float w = static_cast<float>(x1 - x0);
-        float h = static_cast<float>(y1 - y0);
+        auto w = static_cast<float>(x1 - x0);
+        auto h = static_cast<float>(y1 - y0);
 
         if (w > max_w) max_w = w;
         if (h > max_h) max_h = h;
@@ -70,10 +69,10 @@ inline void write_font_cache(const Asura::Font& font, const std::string& path) {
     out.write(reinterpret_cast<const char*>(&bitmap_size), sizeof(bitmap_size));
 
     if (bitmap_size > 0) {
-        out.write(reinterpret_cast<const char*>(font.bitmap.data()), static_cast<std::streamsize>(bitmap_size));
+        out.write(reinterpret_cast<const char*>(font.bitmap.data()), bitmap_size);
     }
 
-    out.write(reinterpret_cast<const char*>(font.chars.data()), static_cast<std::streamsize>(NUM_CHARS * sizeof(stbtt_bakedchar)));
+    out.write(reinterpret_cast<const char*>(font.chars.data()), NUM_CHARS * sizeof(stbtt_bakedchar));
 }
 
 
@@ -100,7 +99,7 @@ inline bool read_font_cache(Asura::Font& font, const std::string& path, std::siz
     font.bitmap.resize(bitmap_size);
     if (bitmap_size > 0) {
         in.read(reinterpret_cast<char*>(font.bitmap.data()),
-                static_cast<std::streamsize>(bitmap_size));
+                bitmap_size);
         if (!in) {
             Asura::Log::get().error("Bad read on bitmap for {} from: {}", font.name, path);
             return false;
@@ -109,7 +108,7 @@ inline bool read_font_cache(Asura::Font& font, const std::string& path, std::siz
 
     // read baked chars
     in.read(reinterpret_cast<char*>(font.chars.data()),
-            static_cast<std::streamsize>(NUM_CHARS * sizeof(stbtt_bakedchar)));
+            NUM_CHARS * sizeof(stbtt_bakedchar));
     if (!in) {
         Asura::Log::get().error("Bad read on baked chars for {} from: {}", font.name, path);
         return false;
@@ -299,7 +298,6 @@ void Asura::FontRenderer::_init_fonts(const char* dir) {
 
             Log::get().info("Generated bitmap font \033[1m{}\033[0m (enum id={})", name, id);
         }
-
         
         sg_image_desc img = {};
         img.width  = font.w;
@@ -314,10 +312,10 @@ void Asura::FontRenderer::_init_fonts(const char* dir) {
         vd.texture.image = font.atlas;
         font.view = sg_make_view(&vd);
 
-        int idx = (int)fonts.size();
+        int idx = static_cast<int>(fonts.size());
         fonts.push_back(std::move(font));
 
-        if (id >= 0 && id < (int)id_to_font_index.size()) {
+        if (id >= 0 && id < static_cast<int>(id_to_font_index.size())) {
             id_to_font_index[id] = idx;
         }
     }
@@ -338,7 +336,7 @@ void Asura::FontRenderer::_init_fr() {
     std::vector<uint16_t> tmp;
     tmp.reserve(MAX_GLYPHS * 6);
     for (int i = 0; i < MAX_GLYPHS; ++i) {
-        uint16_t base = static_cast<uint16_t>(i * 4);
+        auto base = static_cast<uint16_t>(i * 4);
         tmp.push_back(base + 0);
         tmp.push_back(base + 1);
         tmp.push_back(base + 2);
@@ -424,7 +422,7 @@ void Asura::FontRenderer::_queue_text(int id, std::string_view text, Math::Vec2 
         float x1 = pos.x + (q.x1 - pos.x) * scale;
         float y1 = pos.y + (q.y1 - pos.y) * scale;
 
-        std::uint16_t base = static_cast<std::uint16_t>(verts.size());
+        auto base = static_cast<std::uint16_t>(verts.size());
 
         verts.push_back(Vertex { x0, y0, q.s0, q.t0, col });
         verts.push_back(Vertex { x1, y0, q.s1, q.t0, col });
