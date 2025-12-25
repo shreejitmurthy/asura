@@ -15,8 +15,6 @@ using namespace Asura::Utils::System;
 #include <nlohmann/json.hpp>
 using namespace nlohmann;
 
-#include "shaders/shader.glsl.h"
-
 #define offsetfr(v) (int)offsetof(Vertex, v)
 
 #define SG_VECTOR_RANGE(v) sg_range{ (v).data(), (v).size() * sizeof((v)[0]) }
@@ -107,8 +105,7 @@ inline bool read_font_cache(Asura::Font& font, const std::string& path, std::siz
     }
 
     // read baked chars
-    in.read(reinterpret_cast<char*>(font.chars.data()),
-            NUM_CHARS * sizeof(stbtt_bakedchar));
+    in.read(reinterpret_cast<char*>(font.chars.data()), NUM_CHARS * sizeof(stbtt_bakedchar));
     if (!in) {
         Asura::Log::get().error("Bad read on baked chars for {} from: {}", font.name, path);
         return false;
@@ -117,10 +114,10 @@ inline bool read_font_cache(Asura::Font& font, const std::string& path, std::siz
     return true;
 }
 
-
 void Asura::FontRenderer::init(const std::string &fonts_dir, std::vector<ResourceDef> reg) {
     id_to_font_index.fill(-1);
     kFontDefs = std::move(reg);
+    vs_params.mvp = Utils::Gfx::get_default_projection(Device::instance().high_dpi ? 2 : 1);
     auto res = findPath(fonts_dir);
     auto path = res.unwrap([fonts_dir]() {
         Log::get().error("Failed to parse directory at: {}", fonts_dir);
@@ -130,12 +127,10 @@ void Asura::FontRenderer::init(const std::string &fonts_dir, std::vector<Resourc
     _init_fr();
 }
 
-void Asura::FontRenderer::render(Math::Mat4 projection, Math::Mat4 view) {
+void Asura::FontRenderer::render(Math::Mat4 view) {
     sg_apply_pipeline(pip);
 
-    Math::Mat4 mvp = projection * view;
-
-    text_params_t vs_params;
+    Math::Mat4 mvp = vs_params.mvp * view;
     vs_params.mvp = mvp;
 
     for (auto& f : fonts) {
@@ -414,7 +409,6 @@ void Asura::FontRenderer::_queue_text(int id, std::string_view text, Math::Vec2 
         if (ci < 0 || ci >= NUM_CHARS) continue;
 
         stbtt_aligned_quad q;
-        // TODO: clarify magic numbers
         stbtt_GetBakedQuad(font->chars.data(), font->w, font->h, ci, &x, &y, &q, true);
 
         float x0 = pos.x + (q.x0 - pos.x) * scale;

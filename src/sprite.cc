@@ -48,6 +48,7 @@ inline static sg_buffer make_ibuf() {
 
 void Asura::SpriteRenderer::init(const std::string &images_dir, std::vector<ResourceDef> reg) {
     kSpriteDefs = reg;
+    ir.vs_params.mvp = Utils::Gfx::get_default_projection(Device::instance().high_dpi ? 2 : 1);
     auto res = findPath(images_dir);
     auto path = res.unwrap([images_dir]() {
         Log::get().error("Failed to parse directory at: {}", images_dir);
@@ -57,8 +58,8 @@ void Asura::SpriteRenderer::init(const std::string &images_dir, std::vector<Reso
     _init_ir(atlas.path);
 }
 
-void Asura::SpriteRenderer::render(Math::Mat4 projection, Math::Mat4 view) {
-    _update_ir(projection, view);
+void Asura::SpriteRenderer::render(Math::Mat4 view) {
+    _update_ir(ir.vs_params.mvp, view);
     _draw_ir();
     _clear();
 }
