@@ -55,6 +55,8 @@ void Asura::init(const Device& device) {
         case SG_BACKEND_GLCORE:
             gfx_backend = "OpenGL";
             break;
+        default:
+            break;
     }
 
     Log::get().info("Window Backend: {}", win_backend);
@@ -101,4 +103,19 @@ void Asura::end() {
     if (Device::instance().debug) sdtx_draw();
     sg_end_pass();
     sg_commit();
+}
+
+std::string Asura::get_backend() {
+    switch (sg_query_backend()) {
+        case SG_BACKEND_METAL_MACOS:
+        case SG_BACKEND_METAL_IOS:
+        case SG_BACKEND_METAL_SIMULATOR:
+            return "Metal";
+        case SG_BACKEND_D3D11:
+            return "D3D11";
+        case SG_BACKEND_GLCORE:
+            return "OpenGL";
+        default:
+            return "";
+    }
 }

@@ -138,6 +138,7 @@ float yScale = P(1, 1);                          // direct element access (row, 
 ## TODO
 - [x] Use custom math header
 - [x] Safe directory parsing.
+- [ ] Image doesn't stretch after resizing window.
 - [ ] Primitives (basic lines and shapes) for debugging
 - [ ] ImGui support
 - [ ] Async asset loading

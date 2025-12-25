@@ -22,4 +22,6 @@ void init(const Device& device);
 void begin(const sg_pass_action& pass_action);
 void begin(sg_pass pass);
 void end();
+
+std::string get_backend();
 } // Asura

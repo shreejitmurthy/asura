@@ -25,7 +25,7 @@ public:
     }
 
     // TODO: Clarify high-dpi because I'm confused.
-    Device& init(int w, int h, const char* title, bool hi_dpi = false) {
+    Device& init(int w, int h, const std::string& title, bool hi_dpi = false) {
         width = w;
         height = h;
         name = title;
