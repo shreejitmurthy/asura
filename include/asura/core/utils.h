@@ -111,6 +111,7 @@ inline std::vector<std::uint8_t> read_file_vec(const char* filename) {
 inline void writeBinary(const std::vector<std::uint8_t>& data, const std::string& path) {
     std::ofstream file(path, std::ios::out | std::ios::binary);
     file.write(reinterpret_cast<const char*>(data.data()), static_cast<std::streamsize>(data.size()));
+    
 }
 
 inline std::vector<std::uint8_t> readBinary(const std::string& path, std::size_t size) {
@@ -168,6 +169,37 @@ inline static Math::Mat4 get_default_projection(int dpi_scale) {
     return Math::Mat4::ortho(0.f, w / dpi_scale, h / dpi_scale, 0.f, -1.f, 1.f);
 }
 
+inline static void update_projection_matrix(Math::Vec2 dim, Math::Vec2 virtual_dim, Math::Mat4& projection) {
+    float window_w = dim.x;
+    float window_h = dim.y;
+
+    const float virtual_w = virtual_dim.x;
+    const float virtual_h = virtual_dim.y;
+
+    // Compute aspect ratios
+    float aspect_virtual = virtual_w / virtual_h;
+    float aspect_window  = window_w / window_h;
+
+    float scale;
+    float offset_x = 0.0f;
+    float offset_y = 0.0f;
+
+    if (aspect_window > aspect_virtual) {
+        // window is wider than desired: letterbox
+        scale    = window_h / virtual_h;
+        offset_x = (window_w - virtual_w * scale) * 0.5f;
+    } else {
+        // window is taller than desired: pillarbox
+        scale    = window_w / virtual_w;
+        offset_y = (window_h - virtual_h * scale) * 0.5f;
+    }
+
+    using namespace Math;
+
+    Mat4 proj  = Mat4::ortho(0.0f, window_w, window_h, 0.0f, -1.0f, 1.0f);
+    Mat4 model = Mat4::translate(Vec3(offset_x, offset_y, 0.0f)) * Mat4::scale(Vec3(scale, scale, 1.0f));
+
+    projection = proj * model;
+}
+
 } // Asura::Utils::Gfx
-
-
