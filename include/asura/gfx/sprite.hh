@@ -95,7 +95,9 @@ public:
         _push_instance(std::to_underlying(id), position, scale, rotation, pivot, pivot_px, tintv);
     }
 
-    void render(Math::Mat4 projection = Utils::Gfx::get_default_projection(Device::instance().high_dpi ? 2 : 1), Math::Mat4 view = Math::Mat4(1.f));
+    void render(Math::Mat4 view = Math::Mat4(1.f));
+
+    void resize(Math::Vec2 dim, Math::Vec2 virtual_dim) { Utils::Gfx::update_projection_matrix(dim, virtual_dim, ir.vs_params.mvp); }
 
 private:
     void _clear() { ir.instances.clear(); }

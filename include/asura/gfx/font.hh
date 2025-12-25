@@ -17,7 +17,9 @@
 #include <sokol/sokol_gfx.h>
 #include <sokol/util/sokol_color.h>
 
-#include "stb_truetype.h"
+#include "shaders/shader.glsl.h"
+
+#include <stb_truetype.h>
 
 static constexpr int FIRST_CHAR = 32;  // start with ASCII code 33 exclamation mark.
 static constexpr int NUM_CHARS  = 95;  // end with ASCII code 127
@@ -57,7 +59,9 @@ public:
         _queue_text(std::to_underlying(id), text, pos, scale, tint);
     }
 
-    void render(Math::Mat4 projection = Utils::Gfx::get_default_projection(Device::instance().high_dpi ? 2 : 1), Math::Mat4 view = Math::Mat4(1.f));
+    void render(Math::Mat4 view = Math::Mat4(1.f));
+
+    void resize(Math::Vec2 dim, Math::Vec2 virtual_dim) { Utils::Gfx::update_projection_matrix(dim, virtual_dim, vs_params.mvp); }
 
 private:  
     void _clear();
@@ -83,6 +87,8 @@ private:
     sg_sampler  smp  = {};
 
     static constexpr int MAX_GLYPHS = 4096;
+
+    text_params_t vs_params;
 };
 
 } // Asura
