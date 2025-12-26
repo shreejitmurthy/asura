@@ -1,6 +1,11 @@
 // Required for macOS.
 
 #if defined(__APPLE__) && defined(__MACH__)
+    /*
+     * We'll include all relevant sokol headers even though we don't use some of them in code.
+     * This is so we doesn't have to do this step, and can just #include <sokol_app.h> if we use it for
+     * windowing.
+     */
     #define SOKOL_IMPL
     #define SOKOL_METAL
     #define SOKOL_NO_ENTRY
@@ -15,15 +20,4 @@
     #include "sokol/util/sokol_debugtext.h"
     #define SOKOL_GL_IMPL
     #include "sokol/util/sokol_gl.h"
-    #if defined(_MSC_VER )
-        #pragma warning(disable:4996)   // strncpy use in fontstash.h
-    #endif
-    #if defined(__GNUC__) || defined(__clang__)
-        #pragma GCC diagnostic push
-        #pragma GCC diagnostic ignored "-Wunused-function"
-        #pragma GCC diagnostic ignored "-Wsign-conversion"
-    #endif
-    #if defined(__GNUC__) || defined(__clang__)
-        #pragma GCC diagnostic pop
-    #endif
 #endif

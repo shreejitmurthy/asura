@@ -9,14 +9,17 @@
     #include <windows.h>
 #endif
 
+/*
+ * We'll include all relevant sokol headers even though we don't use some of them in code.
+ * This is so we don't have to do this step in our game scripts, 
+ * and can just #include <sokol_app.h> if we use it for windowing.
+ */
 #define SOKOL_IMPL
-
 #if defined(_WIN32) || defined(_WIN64)  // Windows
     #define SOKOL_D3D11
 #elif defined(__linux__)  // Linux
     #define SOKOL_GLCORE
 #endif
-
 #define SOKOL_NO_ENTRY
 #define SOKOL_TRACE_HOOKS
 
