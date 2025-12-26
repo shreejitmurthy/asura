@@ -22,8 +22,8 @@ set(ASURA_SOURCES
 
 if(ASURA_PROVIDE_SOKOL_IMPL)
     if(APPLE)
-        enable_language(OBJCXX)
-        set(ASURA_SOKOL_TU "src/asura_sokol_impl.mm")
+        enable_language(OBJC)
+        set(ASURA_SOKOL_TU "src/asura_sokol_impl.m")
         add_library(asura_sokol_impl OBJECT ${ASURA_SOKOL_TU})
         target_compile_definitions(asura_sokol_impl PRIVATE SOKOL_IMPL SOKOL_METAL)
         target_include_directories(asura_sokol_impl PRIVATE ${VENDOR_INCLUDE_DIR})
