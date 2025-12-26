@@ -386,7 +386,7 @@ Asura::Font* Asura::FontRenderer::_find_font(int id) {
     return &fonts[idx];
 }
 
-void Asura::FontRenderer::_queue_text(int id, std::string_view text, Math::Vec2 pos, float scale, sg_color tint) {
+void Asura::FontRenderer::_push_text(int id, std::string_view text, Math::Vec2 pos, float scale, sg_color tint) {
     Font* font = _find_font(id);
     if (!font || text.empty()) return;
     

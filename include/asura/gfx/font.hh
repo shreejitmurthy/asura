@@ -55,8 +55,8 @@ public:
     void init(const std::string& fonts_dir, std::vector<ResourceDef> reg = {});
      template <typename E>
         requires std::is_enum_v<E>
-    void queue(E id, std::string_view text, Math::Vec2 pos, float scale = 1.f, sg_color tint = sg_white) {
-        _queue_text(std::to_underlying(id), text, pos, scale, tint);
+    void push(E id, std::string_view text, Math::Vec2 pos, float scale = 1.f, sg_color tint = sg_white) {
+        _push_text(std::to_underlying(id), text, pos, scale, tint);
     }
 
     void render(Math::Mat4 view = Math::Mat4(1.f));
@@ -69,7 +69,7 @@ private:
     void _init_fonts(const char* dir);
     void _init_fr();
 
-    void _queue_text(int id, std::string_view text, Math::Vec2 pos, float scale, sg_color tint);
+    void _push_text(int id, std::string_view text, Math::Vec2 pos, float scale, sg_color tint);
 
     Font* _find_font(int id);
 
