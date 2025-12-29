@@ -25,11 +25,9 @@ public:
     static void print(const std::string &text, sg_color color = sg_white, int font = FONT_KC854);
     static void print(std::vector<std::string>& text, sg_color color = sg_white, int font = FONT_KC854);
 
-    static void temp(const std::string &text, float lifespan, float dt, sg_color color = sg_white, int font = FONT_KC854);
+    static void temp(const std::string& text, float lifespan, float dt, sg_color color = sg_white, int font = FONT_KC854);
+    static void temp(std::vector<std::string>& text, float lifespan, float dt, sg_color color = sg_white, int font = FONT_KC854);
 
     static void resize(Math::Vec2 dim);
-private:
-    static std::string last_message;
-    static std::vector<std::string> last_messages;
 };
 } // Asura
