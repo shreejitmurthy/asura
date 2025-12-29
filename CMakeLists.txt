@@ -18,6 +18,7 @@ set(ASURA_SOURCES
     "src/graphics.cc"
     "src/sprite.cc"
     "src/font.cc"
+    "src/debug.cc"
 )
 
 if(ASURA_PROVIDE_SOKOL_IMPL)
