@@ -26,7 +26,7 @@ namespace Asura::Utils {
  * Consider checking for Device BuildMode.
  */
 static void die(const std::string& msg) {
-    Log::get().critical(msg);
+    LOGSURA_CRIT(msg);
     exit(1);
 }
 

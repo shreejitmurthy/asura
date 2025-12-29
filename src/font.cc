@@ -122,7 +122,7 @@ void Asura::FontRenderer::init(const std::string &fonts_dir, std::vector<Resourc
     auto path = res.unwrap([fonts_dir]() {
         Log::get().error("Failed to parse directory at: {}", fonts_dir);
     });
-    // Log::get().info("Parsed dir: {}", path);
+    // LOGSURA_INFO("Parsed dir: {}", path);
     _init_fonts(fonts_dir.c_str());
     _init_fr();
 }
@@ -193,7 +193,7 @@ void Asura::FontRenderer::_init_fonts(const char* dir) {
                     meta = disk;
                     meta_valid = true;
                 } else {
-                    Log::get().info("Font metadata header changed, will rebuild fonts.json");
+                    LOGSURA_INFO("Font metadata header changed, will rebuild fonts.json");
                 }
             } catch (const std::exception& e) {
                 Log::get().error("Error reading font metadata header: {}", e.what());
@@ -241,9 +241,10 @@ void Asura::FontRenderer::_init_fonts(const char* dir) {
 
                 if (read_font_cache(font, bin, bitmap_size)) {
                     reused = true;
-                    Log::get().info("Reused bitmap font \033[1m{}\033[0m from cache (enum id={})", name, id);
+                    // LOGSURA_INFO("Reused bitmap font \033[1m{}\033[0m from cache (enum id={})", name, id);
+                    LOGSURA_INFO("Reused bitmap font \033[1m{}\033[0m from cache (enum id={})", name, id);
                 } else {
-                    Log::get().warn("Failed to read cache for font {}, will re-bake", name);
+                    LOGSURA_WARN("Failed to read cache for font {}, will re-bake", name);
                 }
             } catch (const std::exception& e) {
                 Log::get().error("JSON error for font {}: {}", name, e.what());
@@ -291,7 +292,7 @@ void Asura::FontRenderer::_init_fonts(const char* dir) {
 
             rewrite_json = true;
 
-            Log::get().info("Generated bitmap font \033[1m{}\033[0m (enum id={})", name, id);
+            LOGSURA_INFO("Generated bitmap font \033[1m{}\033[0m (enum id={})", name, id);
         }
         
         sg_image_desc img = {};
