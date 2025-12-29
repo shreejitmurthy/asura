@@ -17,9 +17,6 @@ typedef struct ResourceDef {
     int size;
 } ResourceDef;
 
-// Sprite: s.width > 0
-
-// TODO: Needs a better name.
 inline std::size_t compute_resource_hash(const std::vector<ResourceDef>& res) {
     std::vector<std::string> names;
     names.reserve(res.size());
@@ -33,5 +30,10 @@ inline std::size_t compute_resource_hash(const std::vector<ResourceDef>& res) {
     }
     return h;
 }
+
+typedef struct Color {
+    float r, g, b;
+    float a = 1;
+} Color;
 
 } // Asura
