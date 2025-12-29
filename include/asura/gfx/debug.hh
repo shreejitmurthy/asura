@@ -5,6 +5,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 #include <sokol/sokol_gfx.h>
 #include <sokol/util/sokol_debugtext.h>
@@ -12,28 +13,23 @@
 
 #include "device.hh"
 #include "../core/math.hh"
+#include "../core/log.h"  // temp
 
 #define FONT_KC854 (0)
 #define FONT_ORIC  (1)
 
-namespace Asura::Debug {
+namespace Asura {
 
-inline void print(const std::string &text, sg_color colour = sg_white, int font = FONT_KC854) {
-    if (!Device::instance().debug) return;
-    sdtx_font(font);
-    sdtx_color3b(colour.r * 255, colour.g * 255, colour.b * 255);
-    sdtx_printf("%s\n\n", text.c_str());
-}
+class Debug {
+public:
+    static void print(const std::string &text, sg_color color = sg_white, int font = FONT_KC854);
+    static void print(std::vector<std::string>& text, sg_color color = sg_white, int font = FONT_KC854);
 
-inline void resize(Math::Vec2 dim) {
-    auto device = Device::instance();
-    if (!device.debug) return;
-    float d = static_cast<float>(device.debug_scale);
-    int dpi_scale = device.high_dpi ? 2 : 1;
-    const float cx = dim.x  / dpi_scale * 1 / d;
-    const float cy = dim.y  / dpi_scale * 1 / d;
-    sdtx_canvas(cx, cy);
-    sdtx_origin(1.f, 1.f);
-}
+    static void temp(const std::string &text, float lifespan, float dt, sg_color color = sg_white, int font = FONT_KC854);
 
-} // Asura::Debug
+    static void resize(Math::Vec2 dim);
+private:
+    static std::string last_message;
+    static std::vector<std::string> last_messages;
+};
+} // Asura
