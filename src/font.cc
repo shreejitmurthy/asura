@@ -241,8 +241,8 @@ void Asura::FontRenderer::_init_fonts(const char* dir) {
 
                 if (read_font_cache(font, bin, bitmap_size)) {
                     reused = true;
-                    // LOGSURA_INFO("Reused bitmap font \033[1m{}\033[0m from cache (enum id={})", name, id);
-                    LOGSURA_INFO("Reused bitmap font \033[1m{}\033[0m from cache (enum id={})", name, id);
+                    // LOGSURA_INFO("Reused bitmap font 1m{}0m from cache (enum id={})", name, id);
+                    LOGSURA_INFO("Reused bitmap font {} from cache (enum id={})", name, id);
                 } else {
                     LOGSURA_WARN("Failed to read cache for font {}, will re-bake", name);
                 }
@@ -292,7 +292,7 @@ void Asura::FontRenderer::_init_fonts(const char* dir) {
 
             rewrite_json = true;
 
-            LOGSURA_INFO("Generated bitmap font \033[1m{}\033[0m (enum id={})", name, id);
+            LOGSURA_INFO("Generated bitmap font {} (enum id={})", name, id);
         }
         
         sg_image_desc img = {};
