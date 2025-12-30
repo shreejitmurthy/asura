@@ -47,7 +47,7 @@ void draw() {
     /*
      * print a temporary message that fades out over 5 seconds
      * it reappears after detecting a change in string/array before fading again
-    */
+     */
     Asura::Debug::temp(fading_messages, 5, delta_time, "Temporary Log");
 
     Asura::end();
@@ -83,8 +83,16 @@ static const std::vector<Asura::ResourceDef> fontRegistry = {
 void init() {
     Asura::init(Asura::Device::instance()
         .init(1024, 720, "Asura Program")
-        .set_window_backend(Asura::WindowBackend::SAPP)  // SAPP, GLFW/SDL
-        .set_build_mode(Asura::BuildMode::Debug)  // Debug or Release, certain Asura code doesn't get run in Release, notably the logging
+        .set_window_backend(Asura::WindowBackend::SAPP)  // SAPP, GLFW, or SDL
+            /*
+             * Debug or Release build modes
+             * In Release mode, logging below INFO level is disabled
+             * Use set_build_mode_step() to execute custom logic based on build mode
+             * Or use set_build_mode() to set mode without a callback
+             */
+        .set_build_mode_step(Asura::BuildMode::Release, [](Asura::BuildMode m) {
+            Asura::Log::set_log_level(static_cast<int>(m));
+        })
     );
 
     sr.init("res/images/", spriteRegistry);
