@@ -12,25 +12,33 @@
  * Consider refactoring at some point.
 */
 
-void prep_color_and_font(sg_color color, int font, float alpha = 1) {
+static void prep_color_and_font(sg_color color, int font, float alpha = 1) {
     sdtx_font(font);
     sdtx_color4b(color.r * 255, color.g * 255, color.b * 255, alpha * 255);
 }
 
-void Asura::Debug::print(const std::string &text, sg_color color, int font) {
+// Must prep color before doing this.
+static void print_vector(std::vector<std::string>& text, const std::string& label, sg_color color, int font) {
+    sdtx_printf("( ");
+    prep_color_and_font(color, font, 0.5);
+    sdtx_printf("%s\n\n", label.c_str());
+    prep_color_and_font(color, font);
+    for (const auto& i : text) {
+        sdtx_printf("  %s\n", i.c_str());
+    }
+    sdtx_printf("\n)\n\n");
+}
+
+void Asura::Debug::print(const std::string& text, sg_color color, int font) {
     if (!Device::instance().debug) return;
     prep_color_and_font(color, font);
     sdtx_printf("%s\n\n", text.c_str());
 }
 
-void Asura::Debug::print(std::vector<std::string> &text, sg_color color, int font) {
+void Asura::Debug::print(std::vector<std::string>& text, const std::string& label, sg_color color, int font) {
     if (!Device::instance().debug) return;
     prep_color_and_font(color, font);
-    sdtx_printf("(\n");
-    for (auto i : text) {
-        sdtx_printf("  %s\n", i.c_str());
-    }
-    sdtx_printf(")\n\n");
+    print_vector(text, label, color, font);
 }
 
 void Asura::Debug::temp(const std::string& text, float lifespan, float dt, sg_color color, int font) {
@@ -52,7 +60,7 @@ void Asura::Debug::temp(const std::string& text, float lifespan, float dt, sg_co
     }
 }
 
-void Asura::Debug::temp(std::vector<std::string>& text, float lifespan, float dt, sg_color color, int font) {
+void Asura::Debug::temp(std::vector<std::string>& text, float lifespan, float dt, const std::string& label, sg_color color, int font) {
     static std::vector<std::string> current_message;
     static float remaining = 0.f;
 
@@ -68,11 +76,7 @@ void Asura::Debug::temp(std::vector<std::string>& text, float lifespan, float dt
         float alpha = remaining / lifespan;
         prep_color_and_font(color, font, alpha);
 
-        sdtx_printf("(\n");
-        for (auto i : text) {
-            sdtx_printf("  %s\n", i.c_str());
-        }
-        sdtx_printf(")\n\n");
+        print_vector(text, label, color, font);
     }
 }
 
