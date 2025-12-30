@@ -29,7 +29,8 @@ public:
             std::vector<spdlog::sink_ptr> sinks { console_sink, rb };
             auto l = std::make_shared<spdlog::logger>("logsura", sinks.begin(), sinks.end());
 
-            l->set_pattern("\033[2m[%T.%e | +%2oms]\033[0m [%^%l%$] %v");
+            // l->set_pattern("\033[+%2oms]\033[0m [%^%l%$] %v");
+            l->set_pattern("[+%oms %^%l%$] %v");
             l->set_level(spdlog::level::trace);
             l->flush_on(spdlog::level::info);
 
