@@ -18,7 +18,7 @@ void Asura::init(const Device& device) {
     std::string win_backend;
     switch (win) {
         case WindowBackend::SAPP:
-            win_backend = "sokol_app";
+            win_backend = "sokol-app";
             desc.environment = sglue_environment();
             break;
         case WindowBackend::GLFW:
