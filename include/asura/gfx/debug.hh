@@ -13,20 +13,19 @@
 
 #include "device.hh"
 #include "../core/math.hh"
-#include "../core/log.h"  // temp
 
-#define FONT_KC854 (0)
-#define FONT_ORIC  (1)
+static constexpr int FONT_KC854 = 0;
+static constexpr int FONT_ORIC  = 1;
 
 namespace Asura {
 
 class Debug {
 public:
     static void print(const std::string &text, sg_color color = sg_white, int font = FONT_KC854);
-    static void print(const std::vector<std::string>& text, const std::string& label = "", sg_color color = sg_white, int font = FONT_KC854);
-
     static void temp(const std::string& text, float lifespan, float dt, sg_color color = sg_white, int font = FONT_KC854);
-    static void temp(const std::vector<std::string>& text, float lifespan, float dt, const std::string& label = "", sg_color color = sg_white, int font = FONT_KC854);
+    /* Longer messages in vectors are better suited for Oric Atmos */
+    static void print(const std::vector<std::string>& text, const std::string& label = "", sg_color color = sg_white, int font = FONT_ORIC);
+    static void temp(const std::vector<std::string>& text, float lifespan, float dt, const std::string& label = "", sg_color color = sg_white, int font = FONT_ORIC);
 
     static void resize(Math::Vec2 dim);
 };
