@@ -25,15 +25,30 @@ Asura requires a few dependencies:
 - [json](https://github.com/nlohmann/json): Used in asset metadata creation for faster game reloads.
 
 ## Features
-### Basic Debug Text Rendering
+### Debug Text Rendering
 ```cpp
 #include <asura/asura.h>
+
+std::vector<std::string> messages = {"foo", "bar", "baz"};
+std::string label = "My Message"
+
+std::vector<std::string> fading_messages = {"hello!", "this message should", "fade away!"}
 
 void draw() {
     Asura::begin(pass_action);
 
     Asura::Debug::print("Hello, World!", {red, green, blue});
+    // default color is white
     Asura::Debug::print(std::format("FPS: {}", std::round(1 / delta_time)));
+
+    // print an array of messages (optional label)
+    Asura::Debug::print(messages, label);
+
+    /*
+     * print a temporary message that fades out over 5 seconds
+     * it reappears after detecting a change in string/array before fading again
+    */
+    Asura::Debug::temp(fading_messages, 5, delta_time, "Temporary Log");
 
     Asura::end();
 }
@@ -66,7 +81,11 @@ static const std::vector<Asura::ResourceDef> fontRegistry = {
 };
 
 void init() {
-    Asura::init();
+    Asura::init(Asura::Device::instance()
+        .init(1024, 720, "Asura Program")
+        .set_window_backend(Asura::WindowBackend::SAPP)  // SAPP, GLFW/SDL
+        .set_build_mode(Asura::BuildMode::Debug)  // Debug or Release, certain Asura code doesn't get run in Release, notably the logging
+    );
 
     sr.init("res/images/", spriteRegistry);
     
@@ -105,10 +124,22 @@ void draw() {
     Asura::end();
 }
 ```
-### Informative Logging
-<p align="center">
-    <img src="imgs/logging.png" width=600>
-</p>
+
+### Logger (uses `spdlog`)
+```cpp
+// Macros
+LOGSURA_INFO(...)
+LOGSURA_WARN(...)
+LOGSURA_ERROR(...)
+LOGSURA_CRIT(...)
+
+// Singleton style
+Asura::Log::get().info(...)
+Asura::Log::get().warn(...)
+Asura::Log::get().error(...)
+Asura::Log::get().critical(...)
+
+```
 
 ### Basic Math Functions
 Asura's math headers contain only what's necessary for Asura to run, minimal bloat.
@@ -136,11 +167,13 @@ float yScale = P(1, 1);                          // direct element access (row, 
 ```
 
 ## TODO
-- [x] Use custom math header
+- [x] Use custom math header.
 - [x] Safe directory parsing.
 - [x] Image doesn't stretch after resizing window.
-- [ ] Figure out why I need to do `../` before includes in `core/` (I don't want to do this)
-- [ ] Primitives (basic lines and shapes) for debugging
-- [ ] ImGui support
-- [ ] Async asset loading
+- [x] Temporary and array debug printing.
+- [ ] Figure out why I need to do `../` before includes in `core/` (it's some CMake goofiness).
+- [ ] Figure out why debug sizes above 1 are huge.
+- [ ] Primitives (basic lines and shapes) for game debugging.
+- [ ] ImGui support.
+- [ ] Async asset loading.
 
