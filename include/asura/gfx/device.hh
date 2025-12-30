@@ -3,7 +3,9 @@
 //
 
 #pragma once
+
 #include <string>
+#include <functional>
 
 namespace Asura {
 
@@ -12,9 +14,10 @@ enum class WindowBackend {
     SDL, GLFW  // both should work the same
 };
 
+// Matches spdlog level enum
 enum class BuildMode {
-    Debug,
-    Release,
+    Debug,          // Trace
+    Release = 2,    // Info
 };
 
 class Device {
@@ -24,7 +27,6 @@ public:
         return inst;
     }
 
-    // TODO: Clarify high-dpi because I'm confused.
     Device& init(int w, int h, const std::string& title, bool high_dpi = false) {
         this->width    = w;
         this->height   = h;
@@ -40,14 +42,20 @@ public:
 
     Device& set_build_mode(const BuildMode& mode) {
         build_mode = mode;
-        switch (mode) {
+        switch (build_mode) {
             case BuildMode::Debug:
                 debug = true;
                 break;
-            default:  // TODO: Relevant Release stuff here.
-                debug = false;
+            default:
+                debug = false;;
                 break;
         }
+        return *this;
+    }
+
+    Device& set_build_mode_step(const BuildMode& mode, std::function<void(BuildMode)> step) {
+        set_build_mode(mode);          // engine does its part
+        step(build_mode);              // user does their part
         return *this;
     }
 
