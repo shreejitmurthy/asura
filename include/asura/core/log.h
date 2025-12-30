@@ -10,6 +10,8 @@
 
 #include <memory>
 
+#define LOGSURA_TRACE(...)  Asura::Log::get().trace(__VA_ARGS__)
+#define LOGSURA_DEBUG(...)  Asura::Log::get().debug(__VA_ARGS__)
 #define LOGSURA_INFO(...)   Asura::Log::get().info(__VA_ARGS__)
 #define LOGSURA_WARN(...)   Asura::Log::get().warn(__VA_ARGS__)
 #define LOGSURA_ERROR(...)  Asura::Log::get().error(__VA_ARGS__)
@@ -17,9 +19,15 @@
 
 static constexpr int LOGSURA_KEPT_MESSAGES = 8;
 
+static int log_level = 0;
+
 namespace Asura {
 class Log {
 public:
+    static void set_log_level(int l)  {
+        log_level = l;
+    }
+
     static spdlog::logger& get() {
         static auto logger = [] {
             auto rb = ringbuffer_sink();
@@ -31,7 +39,7 @@ public:
 
             // l->set_pattern("\033[+%2oms]\033[0m [%^%l%$] %v");
             l->set_pattern("[+%oms %^%l%$] %v");
-            l->set_level(spdlog::level::trace);
+            l->set_level(static_cast<spdlog::level::level_enum>(log_level));
             l->flush_on(spdlog::level::info);
 
             spdlog::register_logger(l);
