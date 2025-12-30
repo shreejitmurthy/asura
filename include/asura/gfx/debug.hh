@@ -23,10 +23,10 @@ namespace Asura {
 class Debug {
 public:
     static void print(const std::string &text, sg_color color = sg_white, int font = FONT_KC854);
-    static void print(std::vector<std::string>& text, const std::string& label = "", sg_color color = sg_white, int font = FONT_KC854);
+    static void print(const std::vector<std::string>& text, const std::string& label = "", sg_color color = sg_white, int font = FONT_KC854);
 
     static void temp(const std::string& text, float lifespan, float dt, sg_color color = sg_white, int font = FONT_KC854);
-    static void temp(std::vector<std::string>& text, float lifespan, float dt, const std::string& label = "", sg_color color = sg_white, int font = FONT_KC854);
+    static void temp(const std::vector<std::string>& text, float lifespan, float dt, const std::string& label = "", sg_color color = sg_white, int font = FONT_KC854);
 
     static void resize(Math::Vec2 dim);
 };
