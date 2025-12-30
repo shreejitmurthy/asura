@@ -38,7 +38,7 @@ void Asura::init(const Device& device) {
             break;
     }
 
-    // TODO:Eventually swap out slog_func for spdlog logger.
+    // TODO: Eventually swap out slog_func for spdlog logger.
     desc.logger.func = slog_func;
     sg_setup(&desc);
 
@@ -63,7 +63,7 @@ void Asura::init(const Device& device) {
     LOGSURA_INFO("Graphics Backend: {}", gfx_backend);
 
     if (device.debug) {
-        LOGSURA_INFO("Enabled gfx debugging at {}px", device.debug_scale);
+        LOGSURA_DEBUG("Enabled gfx debugging at {}px", device.debug_scale);
 
         sdtx_desc_t sdtx_desc = {};
         sdtx_desc.fonts[FONT_KC854] = sdtx_font_kc854();

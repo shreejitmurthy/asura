@@ -52,7 +52,7 @@ void Asura::SpriteRenderer::init(const std::string &images_dir, std::vector<Reso
     auto path = res.unwrap([images_dir]() {
         LOGSURA_ERROR("Failed to parse directory at: {}", images_dir);
     });
-    // LOGSURA_INFO("Parsed dir: {}", path);
+    // LOGSURA_DEBUG("Parsed dir: {}", path);
     _init_images(path.c_str());
     _init_ir(atlas.path);
 }
@@ -223,7 +223,7 @@ void Asura::SpriteRenderer::_init_images(const char *dir) {
         tex.width = w; tex.height = h; tex.channels = 4; tex.data = img;
         tex.name = kSpriteDefs[i].name;
         sprites[id] = tex;
-        LOGSURA_INFO("Loaded image {} (enum id={})", kSpriteDefs[i].name, kSpriteDefs[i].id);
+        LOGSURA_DEBUG("Loaded image {} (enum id={})", kSpriteDefs[i].name, kSpriteDefs[i].id);
     }
 
     sprite_count = highest_id + 1;

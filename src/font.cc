@@ -122,7 +122,7 @@ void Asura::FontRenderer::init(const std::string &fonts_dir, std::vector<Resourc
     auto path = res.unwrap([fonts_dir]() {
         Log::get().error("Failed to parse directory at: {}", fonts_dir);
     });
-    // LOGSURA_INFO("Parsed dir: {}", path);
+    // LOGSURA_DEBUG("Parsed dir: {}", path);
     _init_fonts(fonts_dir.c_str());
     _init_fr();
 }
@@ -193,7 +193,7 @@ void Asura::FontRenderer::_init_fonts(const char* dir) {
                     meta = disk;
                     meta_valid = true;
                 } else {
-                    LOGSURA_INFO("Font metadata header changed, will rebuild fonts.json");
+                    LOGSURA_DEBUG("Font metadata header changed, will rebuild fonts.json");
                 }
             } catch (const std::exception& e) {
                 Log::get().error("Error reading font metadata header: {}", e.what());
@@ -241,7 +241,7 @@ void Asura::FontRenderer::_init_fonts(const char* dir) {
 
                 if (read_font_cache(font, bin, bitmap_size)) {
                     reused = true;
-                    // LOGSURA_INFO("Reused bitmap font 1m{}0m from cache (enum id={})", name, id);
+                    // LOGSURA_DEBUG("Reused bitmap font 1m{}0m from cache (enum id={})", name, id);
                     LOGSURA_INFO("Reused bitmap font {} from cache (enum id={})", name, id);
                 } else {
                     LOGSURA_WARN("Failed to read cache for font {}, will re-bake", name);
