@@ -70,7 +70,6 @@ void Asura::init(const Device& device) {
         sdtx_desc.fonts[FONT_ORIC] = sdtx_font_oric();
         sdtx_desc.logger.func = slog_func;
         sdtx_setup(&sdtx_desc);
-        
 
         float d = static_cast<float>(device.debug_scale);
 

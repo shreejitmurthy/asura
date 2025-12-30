@@ -47,6 +47,7 @@ void Asura::Debug::print(const std::vector<std::string>& text, const std::string
 }
 
 void Asura::Debug::temp(const std::string& text, float lifespan, float dt, sg_color color, int font) {
+    if (!Device::instance().debug) return;
     static std::string current_message;
     static float remaining = 0.f;
 
@@ -66,6 +67,7 @@ void Asura::Debug::temp(const std::string& text, float lifespan, float dt, sg_co
 }
 
 void Asura::Debug::temp(const std::vector<std::string>& text, float lifespan, float dt, const std::string& label, sg_color color, int font) {
+    if (!Device::instance().debug) return;
     static std::vector<std::string> current_message;
     static float remaining = 0.f;
 
