@@ -16,9 +16,10 @@ set(VENDOR_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor/)
 
 set(ASURA_SOURCES
     "src/graphics.cc"
+    "src/debug.cc"
     "src/sprite.cc"
     "src/font.cc"
-    "src/debug.cc"
+    "src/model.cc"
 )
 
 if(ASURA_PROVIDE_SOKOL_IMPL)
