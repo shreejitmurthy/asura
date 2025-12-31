@@ -30,7 +30,7 @@ static void print_vector(const std::vector<std::string>& text, const std::string
         sdtx_printf("  %s\n", i.c_str());
     }
 
-    sdtx_printf("\n)\n\n");
+    sdtx_printf(")\n\n");
 }
 
 
