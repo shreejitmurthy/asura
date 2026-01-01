@@ -22,7 +22,7 @@
 
 #define MAX_INSTANCES (1024)
 
-namespace Asura {
+namespace Asura::Sprite {
 
 typedef struct {
     int width, height, channels;
@@ -68,7 +68,7 @@ public:
 };
 
 // Sprite
-class SpriteRenderer {
+class Renderer {
 public:
     void init(const std::string& images_dir, std::vector<ResourceDef> reg);
 
