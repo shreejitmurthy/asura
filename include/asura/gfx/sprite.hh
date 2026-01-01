@@ -37,26 +37,6 @@ typedef struct {
     std::string path;
 } SpriteAtlas;
 
-typedef struct {
-    Math::Vec2 offset;
-    Math::Vec2 uvOffset;
-    Math::Vec2 worldScale;
-    Math::Vec2 uvScale;
-    float rotation;
-    Math::Vec2 pivot;
-    Math::Vec4 tint;
-} InstanceData;
-
-typedef struct InstancedRenderer {
-    int width, height;
-    instance_params_t vs_params;
-    std::vector<InstanceData> instances;
-    // size_t instance_count;
-    bool dirty;
-    sg_bindings bindings;
-    sg_pipeline pipeline;
-} InstancedRenderer;
-
 class Pivot {
 public:
     /*
@@ -100,13 +80,25 @@ public:
     void resize(Math::Vec2 dim, Math::Vec2 virtual_dim) { Utils::Gfx::update_projection_matrix(dim, virtual_dim, ir.vs_params.mvp); }
 
 private:
-    void _clear() { ir.instances.clear(); }
-    
-    std::vector<ResourceDef> kSpriteDefs;
-    std::vector<Sprite> sprites;
-    InstancedRenderer ir = {};
-    SpriteAtlas atlas = {};
-    int sprite_count = 0;
+    typedef struct {
+        Math::Vec2 offset;
+        Math::Vec2 uvOffset;
+        Math::Vec2 worldScale;
+        Math::Vec2 uvScale;
+        float rotation;
+        Math::Vec2 pivot;
+        Math::Vec4 tint;
+    } InstanceData;
+
+    typedef struct {
+        int width, height;
+        instance_params_t vs_params;
+        std::vector<InstanceData> instances;
+        // size_t instance_count;
+        bool dirty;
+        sg_bindings bindings;
+        sg_pipeline pipeline;
+    } InstancedRenderer;
 
     typedef struct {
         int sizeX, sizeY;
@@ -115,12 +107,7 @@ private:
         int rect_count, awidth, aheight;
     } PackDef;
 
-    void _pack(const PackDef& def);
-
-    void _pack_images(const std::string& out_dir);
-    void _init_images(const char* dir);
-
-    typedef struct InstanceDef {
+    typedef struct {
         const Sprite& tex;
         Math::Vec2 position;
         Math::Vec2 scale;
@@ -129,6 +116,22 @@ private:
         Math::Vec2 pivot_px;
         Math::Vec4 tint;
     } InstanceDef;
+
+
+    void _clear() { ir.instances.clear(); }
+    
+    std::vector<ResourceDef> kSpriteDefs;
+    std::vector<Sprite> sprites;
+    InstancedRenderer ir = {};
+    SpriteAtlas atlas = {};
+    int sprite_count = 0;
+
+
+    void _pack(const PackDef& def);
+
+    void _pack_images(const std::string& out_dir);
+    void _init_images(const char* dir);
+
 
     InstanceData _create_instance_data(const InstanceDef &def) {
         const Sprite& tex = def.tex;
