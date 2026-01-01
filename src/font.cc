@@ -56,7 +56,7 @@ std::tuple<int, int> estimateAtlasSize(float gw, float gh, int N) {
     return {w, h};
 }
 
-inline void write_font_cache(const Asura::Font& font, const std::string& path) {
+inline void write_font_cache(const Asura::Font::Font& font, const std::string& path) {
     std::ofstream out(path, std::ios::binary);
     if (!out) {
         std::cerr << "Error opening font cache for writing: " << path << '\n';
@@ -74,7 +74,7 @@ inline void write_font_cache(const Asura::Font& font, const std::string& path) {
 }
 
 
-inline bool read_font_cache(Asura::Font& font, const std::string& path, std::size_t expected_bitmap_size) {
+inline bool read_font_cache(Asura::Font::Font& font, const std::string& path, std::size_t expected_bitmap_size) {
     std::ifstream in(path, std::ios::binary);
     if (!in) {
         std::cerr << "Error opening font cache for reading: " << path << '\n';
@@ -114,7 +114,7 @@ inline bool read_font_cache(Asura::Font& font, const std::string& path, std::siz
     return true;
 }
 
-void Asura::FontRenderer::init(const std::string &fonts_dir, std::vector<ResourceDef> reg) {
+void Asura::Font::Renderer::init(const std::string &fonts_dir, std::vector<ResourceDef> reg) {
     id_to_font_index.fill(-1);
     kFontDefs = std::move(reg);
     vs_params.mvp = Utils::Gfx::get_default_projection(Device::instance().high_dpi ? 2 : 1);
@@ -127,7 +127,7 @@ void Asura::FontRenderer::init(const std::string &fonts_dir, std::vector<Resourc
     _init_fr();
 }
 
-void Asura::FontRenderer::render(Math::Mat4 view) {
+void Asura::Font::Renderer::render(Math::Mat4 view) {
     sg_apply_pipeline(pip);
 
     Math::Mat4 mvp = vs_params.mvp * view;
@@ -155,14 +155,14 @@ void Asura::FontRenderer::render(Math::Mat4 view) {
     _clear();
 }
 
-void Asura::FontRenderer::_clear() {
+void Asura::Font::Renderer::_clear() {
     for (auto& f : fonts) {
         f.batch.verts.clear();
         f.batch.indices.clear();
     }
 }
 
-void Asura::FontRenderer::_init_fonts(const char* dir) {
+void Asura::Font::Renderer::_init_fonts(const char* dir) {
     fonts.clear();
     fonts.reserve(kFontDefs.size());
     id_to_font_index.fill(-1);
@@ -322,7 +322,7 @@ void Asura::FontRenderer::_init_fonts(const char* dir) {
 }
 
 
-void Asura::FontRenderer::_init_fr() {
+void Asura::Font::Renderer::_init_fr() {
     sg_buffer_desc vb = {};
     vb.size = MAX_GLYPHS * 4 * sizeof(Vertex);
     vb.usage.stream_update = true;
@@ -380,14 +380,14 @@ void Asura::FontRenderer::_init_fr() {
     pip = sg_make_pipeline(&pip_desc);
 }
 
-Asura::Font* Asura::FontRenderer::_find_font(int id) {
+Asura::Font::Font* Asura::Font::Renderer::_find_font(int id) {
     if (id < 0 || id >= static_cast<int>(id_to_font_index.size())) return nullptr;
     int idx = id_to_font_index[id];
     if (idx < 0 || idx >= static_cast<int>(fonts.size())) return nullptr;
     return &fonts[idx];
 }
 
-void Asura::FontRenderer::_push_text(int id, std::string_view text, Math::Vec2 pos, float scale, sg_color tint) {
+void Asura::Font::Renderer::_push_text(int id, std::string_view text, Math::Vec2 pos, float scale, sg_color tint) {
     Font* font = _find_font(id);
     if (!font || text.empty()) return;
     

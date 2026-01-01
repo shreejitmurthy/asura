@@ -24,7 +24,7 @@
 static constexpr int FIRST_CHAR = 32;  // start with ASCII code 33 exclamation mark.
 static constexpr int NUM_CHARS  = 95;  // end with ASCII code 127
 
-namespace Asura {
+namespace Asura::Font {
 struct Vertex {
     float x, y;
     float u, v;
@@ -50,7 +50,7 @@ struct Font {
     } batch;
 };
 
-class FontRenderer {
+class Renderer {
 public:
     void init(const std::string& fonts_dir, std::vector<ResourceDef> reg = {});
      template <typename E>
