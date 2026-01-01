@@ -7,6 +7,6 @@
 [submodule "vendor/json"]
 	path = vendor/json
 	url = https://github.com/nlohmann/json.git
-[submodule "vendor/fast_obj"]
-	path = vendor/fast_obj
-	url = https://github.com/thisistherk/fast_obj.git
+[submodule "vendor/ozz-animation"]
+	path = vendor/ozz-animation
+	url = https://github.com/guillaumeblanc/ozz-animation.git
