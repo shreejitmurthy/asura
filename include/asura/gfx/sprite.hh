@@ -117,7 +117,6 @@ private:
         Math::Vec4 tint;
     } InstanceDef;
 
-
     void _clear() { ir.instances.clear(); }
     
     std::vector<ResourceDef> kSpriteDefs;
@@ -131,7 +130,6 @@ private:
 
     void _pack_images(const std::string& out_dir);
     void _init_images(const char* dir);
-
 
     InstanceData _create_instance_data(const InstanceDef &def) {
         const Sprite& tex = def.tex;
