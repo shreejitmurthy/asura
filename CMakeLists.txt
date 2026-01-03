@@ -9,8 +9,9 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-add_subdirectory(vendor/spdlog)
-add_subdirectory(vendor/json)
+add_subdirectory("vendor/spdlog")
+add_subdirectory("vendor/json")
+add_subdirectory("vendor/ozz-animations")
 
 set(VENDOR_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor/)
 
@@ -71,6 +72,7 @@ target_link_libraries(asura
     PUBLIC
         spdlog::spdlog
         nlohmann_json::nlohmann_json
+        ozz_animation
 )
 
 if(APPLE)
