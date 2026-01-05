@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "math/general.hh"
+
 #include "math/vec2.hh"
 #include "math/vec3.hh"
 #include "math/vec4.hh"
