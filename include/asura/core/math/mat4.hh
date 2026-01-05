@@ -8,6 +8,7 @@
 #include <algorithm>
 
 #include "vec3.hh"
+#include "vec4.hh"
 
 namespace Asura::Math {
 struct Mat4 {
@@ -17,6 +18,14 @@ struct Mat4 {
     constexpr explicit Mat4(float diag) : m{0} {
         m[0] = m[5] = m[10] = m[15] = diag;
     }
+
+    constexpr Mat4(const Vec4& c0, const Vec4& c1, const Vec4& c2, const Vec4& c3)
+    : m{
+        c0.x, c0.y, c0.z, c0.w,
+        c1.x, c1.y, c1.z, c1.w,
+        c2.x, c2.y, c2.z, c2.w,
+        c3.x, c3.y, c3.z, c3.w
+    } {}
 
     // prefer Math::Mat4(1.f)
     static constexpr Mat4 identity() { return Mat4(1.f); }
@@ -150,5 +159,24 @@ struct Mat4 {
         float hh = height * 0.5f;
         return ortho(-hw, hw, -hh, hh, zNear, zFar, depthZeroToOne);
     }
+
+    static Mat4 lookAt(const Vec3& from, const Vec3& to, const Vec3& abritaryUp) {
+        auto forward = (from - to).normalized();
+        auto right = abritaryUp.cross(forward).normalized();
+        auto up = forward.cross(right);
+
+        Mat4 m;
+        m(0, 0) = right.x,   m(0, 1) = right.y,   m(0, 2) = right.z; 
+        m(1, 0) = up.x,      m(1, 1) = up.y,      m(1, 2) = up.z; 
+        m(2, 0) = forward.x, m(2, 1) = forward.y, m(2, 2) = forward.z; 
+        m(3, 0) = from.x,    m(3, 1) = from.y,    m(3, 2) = from.z; 
+    }
+
+    static Mat4 perspectiveFovRight(float fovy, float aspect, float zn, float zf) {
+        float yscale = 1.0f / std::tan(fovy * 0.5f); 
+        float xscale = yscale / aspect; 
+        Mat4 m;
+        return Mat4( Vec4( xscale, 0.0f, 0.0f, 0.0f ), Vec4( 0.0f, yscale, 0.0f, 0.0f ), Vec4( 0.0f, 0.0f, zf / ( zn - zf ), -1.0f ), Vec4( 0.0f, 0.0f, zn * zf / ( zn - zf ), 0.0f ) );
+    } 
 };
 } // Asura::Math
