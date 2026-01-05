@@ -11,7 +11,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_subdirectory("vendor/spdlog")
 add_subdirectory("vendor/json")
-add_subdirectory("vendor/ozz-animations")
+add_subdirectory("vendor/ozz-animation")
 
 set(VENDOR_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/vendor/)
 
