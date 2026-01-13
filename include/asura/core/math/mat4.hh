@@ -160,17 +160,26 @@ struct Mat4 {
         return ortho(-hw, hw, -hh, hh, zNear, zFar, depthZeroToOne);
     }
 
-    static Mat4 lookAt(const Vec3& from, const Vec3& to, const Vec3& abritaryUp) {
-        auto forward = (from - to).normalized();
-        auto right = abritaryUp.cross(forward).normalized();
-        auto up = forward.cross(right);
+    static Mat4 lookAt(const Vec3& eye, const Vec3& center, const Vec3& up_) {
+        Vec3 f = (center - eye).normalized();
+        Vec3 s = f.cross(up_).normalized();
+        Vec3 u = s.cross(f);
 
-        Mat4 m;
-        m(0, 0) = right.x,   m(0, 1) = right.y,   m(0, 2) = right.z; 
-        m(1, 0) = up.x,      m(1, 1) = up.y,      m(1, 2) = up.z; 
-        m(2, 0) = forward.x, m(2, 1) = forward.y, m(2, 2) = forward.z; 
-        m(3, 0) = from.x,    m(3, 1) = from.y,    m(3, 2) = from.z; 
+        Mat4 m = Mat4::identity();
+
+        // rotation part (columns are basis vectors)
+        m(0,0) =  s.x;  m(1,0) =  s.y;  m(2,0) =  s.z;
+        m(0,1) =  u.x;  m(1,1) =  u.y;  m(2,1) =  u.z;
+        m(0,2) = -f.x;  m(1,2) = -f.y;  m(2,2) = -f.z;
+
+        // translation part (4th column)
+        m(0,3) = -s.dot(eye);
+        m(1,3) = -u.dot(eye);
+        m(2,3) =  f.dot(eye);
+
+        return m;
     }
+
 
     static Mat4 perspectiveFovRight(float fovy, float aspect, float zn, float zf) {
         float yscale = 1.0f / std::tan(fovy * 0.5f); 
