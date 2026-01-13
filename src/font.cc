@@ -252,7 +252,7 @@ void Asura::Font::Renderer::_init_fonts(const char* dir) {
         }
 
         if (!reused) {
-            auto ttf_bytes = read_file_vec(ttf.c_str());
+            auto ttf_bytes = readFileVec(ttf.c_str());
             if (ttf_bytes.empty()) {
                 Log::get().error("Failed to read TTF at: {}", ttf);
                 continue;  // or die()
