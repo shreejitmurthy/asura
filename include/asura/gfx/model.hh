@@ -7,6 +7,8 @@
 
 namespace Asura::Model {
 
+// Metal and D3D11 support storage buffers, as well as OpenGL 4.1+.
+// This can very easily be checked at runtime with `sg_query_features().compute`
 enum class RenderMethod {
     HardwareInstance,
     StorageBuffer
