@@ -88,7 +88,7 @@ inline void write_json_file(const std::string& path, const nlohmann::json& j) {
     f << j.dump(4);
 }
 
-inline std::uint8_t* read_file(const char* filename, size_t& size) {
+inline std::uint8_t* readFile(const std::string& filename, size_t& size) {
     std::ifstream f(filename, std::ios::binary | std::ios::ate);
     size = f.tellg();
     auto* data = new std::uint8_t[size];
@@ -98,9 +98,19 @@ inline std::uint8_t* read_file(const char* filename, size_t& size) {
 }
 
 // Safer file reading
-inline std::vector<std::uint8_t> read_file_vec(const char* filename) {
+inline std::vector<std::uint8_t> readFileVec(const std::string& filename) {
     std::ifstream f(filename, std::ios::binary | std::ios::ate);
     std::streamsize size = f.tellg();
+    if (size <= 0) return {};
+    f.seekg(0, std::ios::beg);
+    std::vector<std::uint8_t> buf(static_cast<size_t>(size));
+    if (!f.read(reinterpret_cast<char*>(buf.data()), size)) return {};
+    return buf;
+}
+
+inline std::vector<std::uint8_t> readFileVec(const std::string& filename, size_t& size) {
+    std::ifstream f(filename, std::ios::binary | std::ios::ate);
+    size = f.tellg();
     if (size <= 0) return {};
     f.seekg(0, std::ios::beg);
     std::vector<std::uint8_t> buf(static_cast<size_t>(size));
@@ -111,7 +121,6 @@ inline std::vector<std::uint8_t> read_file_vec(const char* filename) {
 inline void writeBinary(const std::vector<std::uint8_t>& data, const std::string& path) {
     std::ofstream file(path, std::ios::out | std::ios::binary);
     file.write(reinterpret_cast<const char*>(data.data()), static_cast<std::streamsize>(data.size()));
-    
 }
 
 inline std::vector<std::uint8_t> readBinary(const std::string& path, std::size_t size) {
